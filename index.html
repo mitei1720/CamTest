@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Canvas Gallery</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --danger: #ef4444;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.15), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.16), transparent 32%),
+        var(--bg);
+      padding: 24px;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.04em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      padding: 20px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .file-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 0 18px;
+      border-radius: 16px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.26);
+      user-select: none;
+    }
+
+    .file-label:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    input[type="file"] {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    button {
+      min-height: 54px;
+      border: 0;
+      border-radius: 16px;
+      padding: 0 18px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #111827;
+      color: #fff;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    .hint {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .canvas-wrap {
+      background:
+        linear-gradient(45deg, #f9fafb 25%, transparent 25%),
+        linear-gradient(-45deg, #f9fafb 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f9fafb 75%),
+        linear-gradient(-45deg, transparent 75%, #f9fafb 75%);
+      background-size: 28px 28px;
+      background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-height: 360px;
+      border-radius: 12px;
+      background: white;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .thumb {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+    }
+
+    .thumb img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .thumb p {
+      margin: 0;
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      button,
+      .file-label {
+        width: 100%;
+      }
+
+      .status {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Photo Canvas Gallery</h1>
+      <p class="lead">
+        写真を撮影・選択すると、HTMLのcanvas上にカード風に並べて表示します。
+        複数枚まとめて選択できます。
+      </p>
+    </header>
+
+    <section class="panel">
+      <div class="controls">
+        <label class="file-label" for="photoInput">
+          写真を撮る / 選択する
+        </label>
+
+        <input
+          id="photoInput"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          multiple
+        />
+
+        <button id="downloadBtn" type="button">canvasを保存</button>
+        <button id="clearBtn" class="danger" type="button">クリア</button>
+      </div>
+
+      <p class="hint">
+        スマホではカメラが起動する場合があります。PCでは画像ファイル選択になります。
+        撮影・選択した画像はこのページ内のメモリ上で扱われ、送信処理はしていません。
+      </p>
+
+      <div class="canvas-wrap">
+        <canvas id="galleryCanvas" width="1000" height="600"></canvas>
+      </div>
+
+      <div class="status">
+        <span id="countText">写真: 0枚</span>
+        <span>canvasサイズ: <span id="canvasSizeText">1000 x 600</span></span>
+      </div>
+
+      <div id="thumbs" class="thumbs" aria-label="選択した写真一覧"></div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const input = document.getElementById("photoInput");
+    const canvas = document.getElementById("galleryCanvas");
+    const ctx = canvas.getContext("2d");
+    const countText = document.getElementById("countText");
+    const canvasSizeText = document.getElementById("canvasSizeText");
+    const thumbs = document.getElementById("thumbs");
+    const clearBtn = document.getElementById("clearBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    const photos = [];
+
+    const layout = {
+      padding: 28,
+      gap: 22,
+      columns: 3,
+      cardWidth: 292,
+      cardHeight: 246,
+      imageHeight: 188
+    };
+
+    input.addEventListener("change", async (event) => {
+      const files = Array.from(event.target.files || [])
+        .filter(file => file.type.startsWith("image/"));
+
+      if (files.length === 0) return;
+
+      for (const file of files) {
+        const photo = await loadImageFile(file);
+        photos.push(photo);
+      }
+
+      input.value = "";
+      render();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      photos.splice(0, photos.length);
+      render();
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (photos.length === 0) {
+        alert("保存する写真がありません。");
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.download = `canvas-gallery-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+
+    function loadImageFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const img = new Image();
+
+          img.onload = () => {
+            resolve({
+              file,
+              img,
+              name: file.name || "camera-photo",
+              url: reader.result,
+              width: img.naturalWidth,
+              height: img.naturalHeight
+            });
+          };
+
+          img.onerror = () => reject(new Error("画像の読み込みに失敗しました。"));
+          img.src = reader.result;
+        };
+
+        reader.onerror = () => reject(new Error("ファイルの読み込みに失敗しました。"));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function render() {
+      resizeCanvas();
+      drawCanvas();
+      renderThumbs();
+      updateStatus();
+    }
+
+    function resizeCanvas() {
+      const rows = Math.max(1, Math.ceil(photos.length / layout.columns));
+      const width =
+        layout.padding * 2 +
+        layout.columns * layout.cardWidth +
+        (layout.columns - 1) * layout.gap;
+
+      const height =
+        layout.padding * 2 +
+        rows * layout.cardHeight +
+        (rows - 1) * layout.gap;
+
+      canvas.width = width;
+      canvas.height = Math.max(600, height);
+      canvasSizeText.textContent = `${canvas.width} x ${canvas.height}`;
+    }
+
+    function drawCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawBackground();
+
+      if (photos.length === 0) {
+        drawEmptyMessage();
+        return;
+      }
+
+      photos.forEach((photo, index) => {
+        const col = index % layout.columns;
+        const row = Math.floor(index / layout.columns);
+
+        const x = layout.padding + col * (layout.cardWidth + layout.gap);
+        const y = layout.padding + row * (layout.cardHeight + layout.gap);
+
+        drawPhotoCard(photo, x, y, index);
+      });
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#f8fafc";
+      for (let x = 0; x < canvas.width; x += 36) {
+        for (let y = 0; y < canvas.height; y += 36) {
+          ctx.fillRect(x, y, 18, 18);
+        }
+      }
+    }
+
+    function drawEmptyMessage() {
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 34px system-ui, sans-serif";
+      ctx.fillText("写真を選択してください", canvas.width / 2, canvas.height / 2 - 12);
+
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "18px system-ui, sans-serif";
+      ctx.fillText("選択した写真がここに並びます", canvas.width / 2, canvas.height / 2 + 28);
+      ctx.restore();
+    }
+
+    function drawPhotoCard(photo, x, y, index) {
+      const radius = 18;
+
+      ctx.save();
+
+      // shadow
+      ctx.shadowColor = "rgba(15, 23, 42, 0.16)";
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 8;
+
+      roundRect(ctx, x, y, layout.cardWidth, layout.cardHeight, radius);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+
+      ctx.shadowColor = "transparent";
+
+      // image area
+      const imageX = x + 14;
+      const imageY = y + 14;
+      const imageW = layout.cardWidth - 28;
+      const imageH = layout.imageHeight;
+
+      ctx.save();
+      roundRect(ctx, imageX, imageY, imageW, imageH, 13);
+      ctx.clip();
+      drawCoverImage(photo.img, imageX, imageY, imageW, imageH);
+      ctx.restore();
+
+      // label
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 16px system-ui, sans-serif";
+      ctx.fillText(`#${index + 1}`, x + 16, y + layout.cardHeight - 25);
+
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "13px system-ui, sans-serif";
+      const info = `${photo.width} x ${photo.height}`;
+      ctx.fillText(info, x + 58, y + layout.cardHeight - 25);
+
+      ctx.restore();
+    }
+
+    function drawCoverImage(img, x, y, w, h) {
+      const imageRatio = img.naturalWidth / img.naturalHeight;
+      const boxRatio = w / h;
+
+      let sx, sy, sw, sh;
+
+      if (imageRatio > boxRatio) {
+        sh = img.naturalHeight;
+        sw = sh * boxRatio;
+        sx = (img.naturalWidth - sw) / 2;
+        sy = 0;
+      } else {
+        sw = img.naturalWidth;
+        sh = sw / boxRatio;
+        sx = 0;
+        sy = (img.naturalHeight - sh) / 2;
+      }
+
+      ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    }
+
+    function renderThumbs() {
+      thumbs.innerHTML = "";
+
+      photos.forEach((photo, index) => {
+        const item = document.createElement("div");
+        item.className = "thumb";
+
+        const img = document.createElement("img");
+        img.src = photo.url;
+        img.alt = `${index + 1}枚目の写真`;
+
+        const name = document.createElement("p");
+        name.textContent = photo.name;
+
+        item.append(img, name);
+        thumbs.appendChild(item);
+      });
+    }
+
+    function updateStatus() {
+      countText.textContent = `写真: ${photos.length}枚`;
+    }
+
+    function roundRect(context, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+
+      context.beginPath();
+      context.moveTo(x + r, y);
+      context.arcTo(x + width, y, x + width, y + height, r);
+      context.arcTo(x + width, y + height, x, y + height, r);
+      context.arcTo(x, y + height, x, y, r);
+      context.arcTo(x, y, x + width, y, r);
+      context.closePath();
+    }
+
+    render();
+  </script>
+</body>
+</html>
