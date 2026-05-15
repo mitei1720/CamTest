@@ -3,516 +3,628 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Photo Canvas Gallery</title>
+  <title>63 Puzzle - 3D Slide Puzzle</title>
   <style>
-    :root {
-      --bg: #f4f6fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --accent: #2563eb;
-      --accent-dark: #1d4ed8;
-      --danger: #ef4444;
-      --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
-      --radius: 22px;
-    }
-
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
       min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
+      color: white;
       background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.15), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.16), transparent 32%),
-        var(--bg);
-      padding: 24px;
+        radial-gradient(circle at top left, #273c75, transparent 35%),
+        radial-gradient(circle at bottom right, #9c27b0, transparent 35%),
+        linear-gradient(135deg, #050510, #101020);
+      padding: 22px;
     }
 
     .app {
-      max-width: 1100px;
+      width: min(1100px, 100%);
       margin: 0 auto;
-    }
-
-    header {
-      margin-bottom: 24px;
+      text-align: center;
     }
 
     h1 {
-      margin: 0 0 8px;
-      font-size: clamp(28px, 4vw, 44px);
-      letter-spacing: -0.04em;
+      font-size: clamp(2.1rem, 6vw, 4.5rem);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      text-shadow:
+        0 0 12px rgba(0, 234, 255, 0.9),
+        0 0 30px rgba(255, 78, 205, 0.45);
     }
 
-    .lead {
-      margin: 0;
-      color: var(--muted);
+    .subtitle {
+      color: rgba(255,255,255,0.78);
       line-height: 1.7;
-    }
-
-    .panel {
-      background: rgba(255, 255, 255, 0.86);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-      padding: 20px;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 12px;
-      align-items: center;
       margin-bottom: 18px;
-    }
-
-    .file-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 54px;
-      padding: 0 18px;
-      border-radius: 16px;
-      background: var(--accent);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.26);
-      user-select: none;
-    }
-
-    .file-label:hover {
-      background: var(--accent-dark);
-      transform: translateY(-1px);
-    }
-
-    input[type="file"] {
-      position: absolute;
-      inline-size: 1px;
-      block-size: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    button {
-      min-height: 54px;
-      border: 0;
-      border-radius: 16px;
-      padding: 0 18px;
-      font-weight: 700;
-      cursor: pointer;
-      background: #111827;
-      color: #fff;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-    }
-
-    button.secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    button.danger {
-      background: var(--danger);
-    }
-
-    .hint {
-      margin: 0 0 18px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .canvas-wrap {
-      background:
-        linear-gradient(45deg, #f9fafb 25%, transparent 25%),
-        linear-gradient(-45deg, #f9fafb 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #f9fafb 75%),
-        linear-gradient(-45deg, transparent 75%, #f9fafb 75%);
-      background-size: 28px 28px;
-      background-position: 0 0, 0 14px, 14px -14px, -14px 0;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: auto;
-      padding: 12px;
-    }
-
-    canvas {
-      display: block;
-      width: 100%;
-      max-width: 100%;
-      min-height: 360px;
-      border-radius: 12px;
-      background: white;
+      font-size: 0.95rem;
     }
 
     .status {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 0 auto 16px;
+      max-width: 720px;
+    }
+
+    .status-card {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+    }
+
+    .label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.62);
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    button.action {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(90deg, #00eaff, #ff4ecd);
+      box-shadow: 0 0 18px rgba(0, 234, 255, 0.35);
+    }
+
+    button.action.secondary {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: none;
+    }
+
+    .cube {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .layer {
+      border-radius: 22px;
+      padding: 10px;
+      background:
+        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px),
+        rgba(0,0,0,0.34);
+      background-size: 22px 22px;
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow:
+        0 0 24px rgba(0, 234, 255, 0.14),
+        inset 0 0 24px rgba(255,255,255,0.035);
+      transition: 0.2s ease;
+    }
+
+    .layer.active {
+      border-color: rgba(255, 230, 109, 0.85);
+      box-shadow:
+        0 0 28px rgba(255, 230, 109, 0.28),
+        inset 0 0 24px rgba(255,255,255,0.04);
+    }
+
+    .layer-title {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 14px;
+      align-items: center;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.86);
+      font-size: 0.85rem;
+      font-weight: 800;
     }
 
-    .thumbs {
+    .empty-marker {
+      font-size: 0.75rem;
+      color: #ffe66d;
+      opacity: 0;
+    }
+
+    .layer.active .empty-marker {
+      opacity: 1;
+    }
+
+    .board {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .thumb {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
-    }
-
-    .thumb img {
-      display: block;
-      width: 100%;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
       aspect-ratio: 1 / 1;
-      object-fit: cover;
     }
 
-    .thumb p {
-      margin: 0;
-      padding: 8px 10px;
-      color: var(--muted);
-      font-size: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .tile,
+    .empty {
+      border-radius: 12px;
+      min-width: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    @media (max-width: 720px) {
+    .tile {
+      border: none;
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: clamp(0.78rem, 2.4vw, 1.28rem);
+      background: linear-gradient(135deg, #00eaff, #6c5ce7);
+      box-shadow:
+        0 0 12px rgba(0, 234, 255, 0.35),
+        inset 0 0 12px rgba(255,255,255,0.12);
+      transition:
+        transform 0.1s ease,
+        box-shadow 0.1s ease,
+        filter 0.1s ease;
+    }
+
+    .tile:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow:
+        0 0 18px rgba(255, 78, 205, 0.45),
+        inset 0 0 12px rgba(255,255,255,0.13);
+    }
+
+    .tile:active {
+      transform: scale(0.95);
+    }
+
+    .tile.correct {
+      background: linear-gradient(135deg, #ffe66d, #ff4ecd);
+      box-shadow:
+        0 0 14px rgba(255, 230, 109, 0.38),
+        inset 0 0 12px rgba(255,255,255,0.13);
+    }
+
+    .tile.movable {
+      outline: 2px solid rgba(255,255,255,0.85);
+      filter: brightness(1.2);
+    }
+
+    .empty {
+      background: rgba(255,255,255,0.04);
+      border: 1px dashed rgba(255,255,255,0.2);
+      display: grid;
+      place-items: center;
+      color: rgba(255,255,255,0.34);
+      font-size: 0.75rem;
+    }
+
+    .message {
+      min-height: 54px;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.84);
+      font-size: 0.95rem;
+    }
+
+    .clear {
+      color: #ffe66d;
+      font-weight: 900;
+      text-shadow: 0 0 12px rgba(255, 230, 109, 0.85);
+    }
+
+    .help {
+      max-width: 760px;
+      margin: 14px auto 0;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.13);
+      color: rgba(255,255,255,0.78);
+      line-height: 1.7;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    @media (max-width: 900px) {
+      .cube {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
       body {
-        padding: 16px;
-      }
-
-      .controls {
-        grid-template-columns: 1fr;
-      }
-
-      button,
-      .file-label {
-        width: 100%;
+        padding: 14px;
       }
 
       .status {
-        flex-direction: column;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .cube {
+        grid-template-columns: 1fr;
+      }
+
+      .layer {
+        padding: 9px;
+      }
+
+      .tile {
+        font-size: 1.15rem;
       }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <header>
-      <h1>Photo Canvas Gallery</h1>
-      <p class="lead">
-        写真を撮影・選択すると、HTMLのcanvas上にカード風に並べて表示します。
-        複数枚まとめて選択できます。
-      </p>
-    </header>
+    <h1>63 PUZZLE</h1>
 
-    <section class="panel">
-      <div class="controls">
-        <label class="file-label" for="photoInput">
-          写真を撮る / 選択する
-        </label>
+    <p class="subtitle">
+      4×4×4の三次元スライドパズル。<br>
+      空きマスの上下左右、さらに上下階の同じ位置にあるタイルを動かせます。
+    </p>
 
-        <input
-          id="photoInput"
-          type="file"
-          accept="image/*"
-          capture
-          multiple
-        />
-
-        <button id="downloadBtn" type="button">canvasを保存</button>
-        <button id="clearBtn" class="danger" type="button">クリア</button>
+    <section class="status">
+      <div class="status-card">
+        <div class="label">MOVES</div>
+        <div class="value" id="moves">0</div>
       </div>
-
-      <p class="hint">
-        スマホではカメラが起動する場合があります。PCでは画像ファイル選択になります。
-        撮影・選択した画像はこのページ内のメモリ上で扱われ、送信処理はしていません。
-      </p>
-
-      <div class="canvas-wrap">
-        <canvas id="galleryCanvas" width="1000" height="600"></canvas>
+      <div class="status-card">
+        <div class="label">TIME</div>
+        <div class="value" id="time">0.0s</div>
       </div>
-
-      <div class="status">
-        <span id="countText">写真: 0枚</span>
-        <span>canvasサイズ: <span id="canvasSizeText">1000 x 600</span></span>
+      <div class="status-card">
+        <div class="label">EMPTY</div>
+        <div class="value" id="emptyPos">--</div>
       </div>
-
-      <div id="thumbs" class="thumbs" aria-label="選択した写真一覧"></div>
+      <div class="status-card">
+        <div class="label">BEST</div>
+        <div class="value" id="best">--</div>
+      </div>
     </section>
+
+    <div class="controls">
+      <button class="action" id="shuffleBtn">シャッフル</button>
+      <button class="action secondary" id="resetBtn">リセット</button>
+      <button class="action secondary" id="hintBtn">動かせるタイルを表示</button>
+    </div>
+
+    <section class="cube" id="cube"></section>
+
+    <p class="message" id="message">
+      「シャッフル」を押してスタート！
+    </p>
+
+    <div class="help">
+      <strong>遊び方：</strong>
+      数字を 1〜63 の順に並べ、最後のマスを空白にするとクリアです。
+      4つのボードは上から順に 1F, 2F, 3F, 4F を表しています。
+      空きマスと同じ階の上下左右だけでなく、同じ座標の上階・下階のタイルもスライドできます。
+    </div>
   </main>
 
   <script>
-    "use strict";
+    const cubeEl = document.getElementById("cube");
+    const movesEl = document.getElementById("moves");
+    const timeEl = document.getElementById("time");
+    const emptyPosEl = document.getElementById("emptyPos");
+    const bestEl = document.getElementById("best");
+    const messageEl = document.getElementById("message");
 
-    const input = document.getElementById("photoInput");
-    const canvas = document.getElementById("galleryCanvas");
-    const ctx = canvas.getContext("2d");
-    const countText = document.getElementById("countText");
-    const canvasSizeText = document.getElementById("canvasSizeText");
-    const thumbs = document.getElementById("thumbs");
-    const clearBtn = document.getElementById("clearBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const hintBtn = document.getElementById("hintBtn");
 
-    const photos = [];
+    const N = 4;
+    const TOTAL = N * N * N;
+    const goal = Array.from({ length: TOTAL }, (_, i) => i === TOTAL - 1 ? 0 : i + 1);
 
-    const layout = {
-      padding: 28,
-      gap: 22,
-      columns: 3,
-      cardWidth: 292,
-      cardHeight: 246,
-      imageHeight: 188
-    };
+    let tiles = [...goal];
+    let moves = 0;
+    let started = false;
+    let cleared = false;
+    let timerId = null;
+    let startTime = 0;
+    let showHints = false;
 
-    input.addEventListener("change", async (event) => {
-      const files = Array.from(event.target.files || [])
-        .filter(file => file.type.startsWith("image/"));
+    updateBestDisplay();
+    render();
 
-      if (files.length === 0) return;
+    function indexToXYZ(index) {
+      const z = Math.floor(index / (N * N));
+      const rest = index % (N * N);
+      const y = Math.floor(rest / N);
+      const x = rest % N;
+      return { x, y, z };
+    }
 
-      for (const file of files) {
-        const photo = await loadImageFile(file);
-        photos.push(photo);
-      }
+    function xyzToIndex(x, y, z) {
+      return z * N * N + y * N + x;
+    }
 
-      input.value = "";
-      render();
-    });
+    function getEmptyIndex() {
+      return tiles.indexOf(0);
+    }
 
-    clearBtn.addEventListener("click", () => {
-      photos.splice(0, photos.length);
-      render();
-    });
+    function isNeighbor3D(a, b) {
+      const A = indexToXYZ(a);
+      const B = indexToXYZ(b);
 
-    downloadBtn.addEventListener("click", () => {
-      if (photos.length === 0) {
-        alert("保存する写真がありません。");
-        return;
-      }
+      const distance =
+        Math.abs(A.x - B.x) +
+        Math.abs(A.y - B.y) +
+        Math.abs(A.z - B.z);
 
-      const link = document.createElement("a");
-      link.download = `canvas-gallery-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    });
+      return distance === 1;
+    }
 
-    function loadImageFile(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
+    function getMovableIndexes(emptyIndex) {
+      const { x, y, z } = indexToXYZ(emptyIndex);
+      const candidates = [];
 
-        reader.onload = () => {
-          const img = new Image();
+      if (x > 0) candidates.push(xyzToIndex(x - 1, y, z));
+      if (x < N - 1) candidates.push(xyzToIndex(x + 1, y, z));
+      if (y > 0) candidates.push(xyzToIndex(x, y - 1, z));
+      if (y < N - 1) candidates.push(xyzToIndex(x, y + 1, z));
+      if (z > 0) candidates.push(xyzToIndex(x, y, z - 1));
+      if (z < N - 1) candidates.push(xyzToIndex(x, y, z + 1));
 
-          img.onload = () => {
-            resolve({
-              file,
-              img,
-              name: file.name || "camera-photo",
-              url: reader.result,
-              width: img.naturalWidth,
-              height: img.naturalHeight
-            });
-          };
-
-          img.onerror = () => reject(new Error("画像の読み込みに失敗しました。"));
-          img.src = reader.result;
-        };
-
-        reader.onerror = () => reject(new Error("ファイルの読み込みに失敗しました。"));
-        reader.readAsDataURL(file);
-      });
+      return candidates;
     }
 
     function render() {
-      resizeCanvas();
-      drawCanvas();
-      renderThumbs();
-      updateStatus();
+      cubeEl.innerHTML = "";
+
+      const emptyIndex = getEmptyIndex();
+      const empty = indexToXYZ(emptyIndex);
+      const movable = getMovableIndexes(emptyIndex);
+
+      emptyPosEl.textContent = `${empty.z + 1}F`;
+
+      for (let z = 0; z < N; z++) {
+        const layer = document.createElement("section");
+        layer.className = "layer";
+
+        if (z === empty.z) {
+          layer.classList.add("active");
+        }
+
+        const title = document.createElement("div");
+        title.className = "layer-title";
+        title.innerHTML = `
+          <span>${z + 1}F</span>
+          <span class="empty-marker">EMPTY</span>
+        `;
+        layer.appendChild(title);
+
+        const board = document.createElement("div");
+        board.className = "board";
+
+        for (let y = 0; y < N; y++) {
+          for (let x = 0; x < N; x++) {
+            const index = xyzToIndex(x, y, z);
+            const num = tiles[index];
+
+            if (num === 0) {
+              const emptyCell = document.createElement("div");
+              emptyCell.className = "empty";
+              emptyCell.textContent = "空";
+              board.appendChild(emptyCell);
+              continue;
+            }
+
+            const button = document.createElement("button");
+            button.className = "tile";
+            button.textContent = num;
+
+            if (num === goal[index]) {
+              button.classList.add("correct");
+            }
+
+            if (showHints && movable.includes(index)) {
+              button.classList.add("movable");
+            }
+
+            button.addEventListener("click", () => moveTile(index));
+            board.appendChild(button);
+          }
+        }
+
+        layer.appendChild(board);
+        cubeEl.appendChild(layer);
+      }
+
+      movesEl.textContent = moves;
     }
 
-    function resizeCanvas() {
-      const rows = Math.max(1, Math.ceil(photos.length / layout.columns));
-      const width =
-        layout.padding * 2 +
-        layout.columns * layout.cardWidth +
-        (layout.columns - 1) * layout.gap;
+    function moveTile(index) {
+      if (cleared) return;
 
-      const height =
-        layout.padding * 2 +
-        rows * layout.cardHeight +
-        (rows - 1) * layout.gap;
+      const emptyIndex = getEmptyIndex();
 
-      canvas.width = width;
-      canvas.height = Math.max(600, height);
-      canvasSizeText.textContent = `${canvas.width} x ${canvas.height}`;
-    }
-
-    function drawCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      drawBackground();
-
-      if (photos.length === 0) {
-        drawEmptyMessage();
+      if (!isNeighbor3D(index, emptyIndex)) {
+        messageEl.textContent = "そのタイルは動かせない！空きマスに3次元的に隣接しているタイルだけ動かせます。";
         return;
       }
 
-      photos.forEach((photo, index) => {
-        const col = index % layout.columns;
-        const row = Math.floor(index / layout.columns);
-
-        const x = layout.padding + col * (layout.cardWidth + layout.gap);
-        const y = layout.padding + row * (layout.cardHeight + layout.gap);
-
-        drawPhotoCard(photo, x, y, index);
-      });
-    }
-
-    function drawBackground() {
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#f8fafc";
-      for (let x = 0; x < canvas.width; x += 36) {
-        for (let y = 0; y < canvas.height; y += 36) {
-          ctx.fillRect(x, y, 18, 18);
-        }
+      if (!started) {
+        startTimer();
+        started = true;
       }
-    }
 
-    function drawEmptyMessage() {
-      ctx.save();
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#111827";
-      ctx.font = "bold 34px system-ui, sans-serif";
-      ctx.fillText("写真を選択してください", canvas.width / 2, canvas.height / 2 - 12);
+      [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+      moves++;
 
-      ctx.fillStyle = "#6b7280";
-      ctx.font = "18px system-ui, sans-serif";
-      ctx.fillText("選択した写真がここに並びます", canvas.width / 2, canvas.height / 2 + 28);
-      ctx.restore();
-    }
+      render();
 
-    function drawPhotoCard(photo, x, y, index) {
-      const radius = 18;
-
-      ctx.save();
-
-      // shadow
-      ctx.shadowColor = "rgba(15, 23, 42, 0.16)";
-      ctx.shadowBlur = 18;
-      ctx.shadowOffsetY = 8;
-
-      roundRect(ctx, x, y, layout.cardWidth, layout.cardHeight, radius);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-
-      ctx.shadowColor = "transparent";
-
-      // image area
-      const imageX = x + 14;
-      const imageY = y + 14;
-      const imageW = layout.cardWidth - 28;
-      const imageH = layout.imageHeight;
-
-      ctx.save();
-      roundRect(ctx, imageX, imageY, imageW, imageH, 13);
-      ctx.clip();
-      drawCoverImage(photo.img, imageX, imageY, imageW, imageH);
-      ctx.restore();
-
-      // label
-      ctx.fillStyle = "#111827";
-      ctx.font = "bold 16px system-ui, sans-serif";
-      ctx.fillText(`#${index + 1}`, x + 16, y + layout.cardHeight - 25);
-
-      ctx.fillStyle = "#6b7280";
-      ctx.font = "13px system-ui, sans-serif";
-      const info = `${photo.width} x ${photo.height}`;
-      ctx.fillText(info, x + 58, y + layout.cardHeight - 25);
-
-      ctx.restore();
-    }
-
-    function drawCoverImage(img, x, y, w, h) {
-      const imageRatio = img.naturalWidth / img.naturalHeight;
-      const boxRatio = w / h;
-
-      let sx, sy, sw, sh;
-
-      if (imageRatio > boxRatio) {
-        sh = img.naturalHeight;
-        sw = sh * boxRatio;
-        sx = (img.naturalWidth - sw) / 2;
-        sy = 0;
+      if (isSolved()) {
+        gameClear();
       } else {
-        sw = img.naturalWidth;
-        sh = sw / boxRatio;
-        sx = 0;
-        sy = (img.naturalHeight - sh) / 2;
+        const empty = indexToXYZ(getEmptyIndex());
+        messageEl.textContent = `移動成功。空きマスは ${empty.z + 1}F にあります。`;
+      }
+    }
+
+    function isSolved() {
+      return tiles.every((num, index) => num === goal[index]);
+    }
+
+    function shuffle() {
+      resetState();
+      tiles = [...goal];
+
+      let previousEmptyIndex = -1;
+
+      for (let i = 0; i < 1200; i++) {
+        const emptyIndex = getEmptyIndex();
+
+        let candidates = getMovableIndexes(emptyIndex)
+          .filter(index => index !== previousEmptyIndex);
+
+        if (candidates.length === 0) {
+          candidates = getMovableIndexes(emptyIndex);
+        }
+
+        const picked = candidates[Math.floor(Math.random() * candidates.length)];
+
+        [tiles[picked], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[picked]];
+        previousEmptyIndex = emptyIndex;
       }
 
-      ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+      moves = 0;
+      messageEl.textContent = "スタート！空きマスに隣接するタイルを動かそう。";
+      render();
     }
 
-    function renderThumbs() {
-      thumbs.innerHTML = "";
-
-      photos.forEach((photo, index) => {
-        const item = document.createElement("div");
-        item.className = "thumb";
-
-        const img = document.createElement("img");
-        img.src = photo.url;
-        img.alt = `${index + 1}枚目の写真`;
-
-        const name = document.createElement("p");
-        name.textContent = photo.name;
-
-        item.append(img, name);
-        thumbs.appendChild(item);
-      });
+    function reset() {
+      resetState();
+      tiles = [...goal];
+      moves = 0;
+      messageEl.textContent = "完成形に戻しました。シャッフルで再スタート！";
+      render();
     }
 
-    function updateStatus() {
-      countText.textContent = `写真: ${photos.length}枚`;
+    function resetState() {
+      stopTimer();
+      started = false;
+      cleared = false;
+      showHints = false;
+      moves = 0;
+      startTime = 0;
+      timeEl.textContent = "0.0s";
     }
 
-    function roundRect(context, x, y, width, height, radius) {
-      const r = Math.min(radius, width / 2, height / 2);
+    function startTimer() {
+      startTime = performance.now();
 
-      context.beginPath();
-      context.moveTo(x + r, y);
-      context.arcTo(x + width, y, x + width, y + height, r);
-      context.arcTo(x + width, y + height, x, y + height, r);
-      context.arcTo(x, y + height, x, y, r);
-      context.arcTo(x, y, x + width, y, r);
-      context.closePath();
+      timerId = setInterval(() => {
+        const seconds = (performance.now() - startTime) / 1000;
+        timeEl.textContent = seconds.toFixed(1) + "s";
+      }, 100);
     }
 
-    render();
+    function stopTimer() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function gameClear() {
+      cleared = true;
+      stopTimer();
+
+      const seconds = Number(timeEl.textContent.replace("s", ""));
+
+      messageEl.innerHTML = `
+        <span class="clear">CLEAR!</span><br>
+        ${moves}手 / ${seconds.toFixed(1)}秒で63パズルを制覇！
+      `;
+
+      saveBest(moves, seconds);
+    }
+
+    function saveBest(currentMoves, currentSeconds) {
+      const old = JSON.parse(localStorage.getItem("puzzle63Best") || "null");
+
+      const shouldUpdate =
+        !old ||
+        currentMoves < old.moves ||
+        (currentMoves === old.moves && currentSeconds < old.seconds);
+
+      if (shouldUpdate) {
+        localStorage.setItem("puzzle63Best", JSON.stringify({
+          moves: currentMoves,
+          seconds: currentSeconds
+        }));
+
+        messageEl.innerHTML += "<br>自己ベスト更新！";
+        updateBestDisplay();
+      }
+    }
+
+    function updateBestDisplay() {
+      const best = JSON.parse(localStorage.getItem("puzzle63Best") || "null");
+
+      if (!best) {
+        bestEl.textContent = "--";
+      } else {
+        bestEl.textContent = `${best.moves}手`;
+      }
+    }
+
+    shuffleBtn.addEventListener("click", shuffle);
+
+    resetBtn.addEventListener("click", reset);
+
+    hintBtn.addEventListener("click", () => {
+      showHints = !showHints;
+      hintBtn.textContent = showHints ? "ヒントを隠す" : "動かせるタイルを表示";
+      render();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const emptyIndex = getEmptyIndex();
+      const { x, y, z } = indexToXYZ(emptyIndex);
+
+      let target = null;
+
+      if (e.key === "ArrowLeft" && x < N - 1) {
+        target = xyzToIndex(x + 1, y, z);
+      }
+
+      if (e.key === "ArrowRight" && x > 0) {
+        target = xyzToIndex(x - 1, y, z);
+      }
+
+      if (e.key === "ArrowUp" && y < N - 1) {
+        target = xyzToIndex(x, y + 1, z);
+      }
+
+      if (e.key === "ArrowDown" && y > 0) {
+        target = xyzToIndex(x, y - 1, z);
+      }
+
+      if ((e.key === "q" || e.key === "Q") && z < N - 1) {
+        target = xyzToIndex(x, y, z + 1);
+      }
+
+      if ((e.key === "e" || e.key === "E") && z > 0) {
+        target = xyzToIndex(x, y, z - 1);
+      }
+
+      if (target !== null) {
+        moveTile(target);
+      }
+    });
   </script>
 </body>
 </html>
