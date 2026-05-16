@@ -3,758 +3,1294 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D 63 Puzzle</title>
+  <title>DAY TRADE DASHBOARD</title>
   <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(15, 25, 43, 0.92);
+      --panel2: rgba(20, 35, 58, 0.9);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #eaf2ff;
+      --muted: #8fa3bf;
+      --green: #38e08c;
+      --red: #ff5b6e;
+      --yellow: #ffd166;
+      --blue: #66a6ff;
+      --purple: #a78bfa;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      --radius: 18px;
+    }
+
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
-      min-height: 100vh;
-      overflow: hidden;
+      margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: white;
       background:
-        radial-gradient(circle at top left, #202060, transparent 35%),
-        radial-gradient(circle at bottom right, #7b1fa2, transparent 35%),
-        linear-gradient(135deg, #050510, #101020);
+        radial-gradient(circle at top left, rgba(69, 110, 255, 0.25), transparent 34%),
+        radial-gradient(circle at top right, rgba(56, 224, 140, 0.14), transparent 30%),
+        linear-gradient(145deg, #06101d, #0b1424 48%, #070b12);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    #canvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      display: block;
+    header {
+      padding: 22px 18px 10px;
+      max-width: 1280px;
+      margin: 0 auto;
     }
 
-    .ui {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      z-index: 10;
-      width: min(360px, calc(100vw - 32px));
-      padding: 16px;
-      border-radius: 20px;
-      background: rgba(0, 0, 0, 0.48);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 0 28px rgba(0, 234, 255, 0.18);
+    .title-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     h1 {
-      font-size: 1.65rem;
-      margin-bottom: 8px;
-      text-shadow:
-        0 0 10px rgba(0, 234, 255, 0.9),
-        0 0 24px rgba(255, 78, 205, 0.45);
+      margin: 0;
+      font-size: clamp(26px, 5vw, 48px);
+      letter-spacing: 0.04em;
+      line-height: 1;
     }
 
-    .description {
-      font-size: 0.86rem;
-      line-height: 1.6;
-      color: rgba(255, 255, 255, 0.78);
-      margin-bottom: 12px;
+    .subtitle {
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 14px;
     }
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .stat {
-      padding: 10px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.09);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      text-align: center;
-    }
-
-    .label {
-      font-size: 0.68rem;
-      color: rgba(255, 255, 255, 0.58);
-      margin-bottom: 4px;
-    }
-
-    .value {
-      font-size: 1.05rem;
-      font-weight: 900;
-    }
-
-    .buttons {
+    .header-actions {
       display: flex;
+      gap: 10px;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
     }
 
     button {
-      flex: 1;
-      min-width: 100px;
       border: none;
       border-radius: 999px;
-      padding: 11px 12px;
+      padding: 11px 15px;
       color: white;
-      font-weight: 800;
+      background: linear-gradient(135deg, #2f80ed, #7c3aed);
       cursor: pointer;
-      background: linear-gradient(90deg, #00eaff, #ff4ecd);
-      box-shadow: 0 0 18px rgba(0, 234, 255, 0.28);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      box-shadow: 0 8px 20px rgba(47, 128, 237, 0.25);
+      transition: transform 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    button:active {
+      transform: translateY(1px);
     }
 
     button.secondary {
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid var(--line);
       box-shadow: none;
     }
 
-    .message {
-      min-height: 48px;
-      font-size: 0.88rem;
+    button.buy {
+      background: linear-gradient(135deg, #18b86f, #38e08c);
+      color: #03130b;
+    }
+
+    button.sell {
+      background: linear-gradient(135deg, #ff4d6d, #ff7a59);
+      color: #190306;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 10px 18px 32px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .stats {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      min-height: 94px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      font-size: clamp(20px, 3.4vw, 31px);
+      font-weight: 850;
+      letter-spacing: -0.03em;
+    }
+
+    .change {
+      font-size: 13px;
+      margin-top: 6px;
+      color: var(--muted);
+    }
+
+    .positive {
+      color: var(--green) !important;
+    }
+
+    .negative {
+      color: var(--red) !important;
+    }
+
+    .yellow {
+      color: var(--yellow) !important;
+    }
+
+    .chart-panel {
+      padding: 16px;
+      min-height: 500px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 850;
+    }
+
+    .stock-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stock-tab {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      padding: 8px 11px;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .stock-tab.active {
+      color: #04101f;
+      background: var(--blue);
+      border-color: transparent;
+    }
+
+    canvas {
+      width: 100%;
+      height: 360px;
+      display: block;
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .market-grid {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .stock-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      gap: 10px;
+      align-items: center;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+      cursor: pointer;
+    }
+
+    .stock-row:hover {
+      background: rgba(255, 255, 255, 0.075);
+    }
+
+    .stock-name {
+      font-weight: 850;
+      font-size: 15px;
+    }
+
+    .stock-desc {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .price {
+      font-weight: 850;
+      text-align: right;
+    }
+
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .side {
+      display: grid;
+      gap: 18px;
+    }
+
+    .trade-panel,
+    .portfolio-panel,
+    .news-panel,
+    .log-panel {
+      padding: 16px;
+    }
+
+    .trade-box {
+      display: grid;
+      gap: 12px;
+    }
+
+    .selected-stock {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(102, 166, 255, 0.1);
+      border: 1px solid rgba(102, 166, 255, 0.25);
+    }
+
+    .selected-main {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text);
+      padding: 13px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: rgba(102, 166, 255, 0.7);
+    }
+
+    .trade-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
       line-height: 1.55;
-      color: rgba(255, 255, 255, 0.86);
     }
 
-    .clear {
-      color: #ffe66d;
-      font-weight: 900;
-      text-shadow: 0 0 12px rgba(255, 230, 109, 0.85);
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
     }
 
-    .help {
+    th,
+    td {
+      padding: 9px 6px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .news-item,
+    .log-item {
+      border-left: 3px solid var(--blue);
+      padding: 10px 10px 10px 12px;
+      background: rgba(255, 255, 255, 0.045);
+      border-radius: 12px;
+      margin-top: 9px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .log-item {
+      border-left-color: var(--purple);
+      color: #dbe7ff;
+    }
+
+    .game-over {
+      display: none;
       position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 10;
-      max-width: 360px;
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(0, 0, 0, 0.42);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      backdrop-filter: blur(12px);
-      color: rgba(255, 255, 255, 0.78);
-      font-size: 0.84rem;
-      line-height: 1.65;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.76);
+      z-index: 30;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    @media (max-width: 720px) {
-      .ui {
-        top: auto;
-        bottom: 10px;
-        left: 10px;
-        width: calc(100vw - 20px);
-        padding: 12px;
-        border-radius: 18px;
-      }
+    .game-over.show {
+      display: flex;
+    }
 
-      .help {
-        display: none;
-      }
+    .modal {
+      max-width: 520px;
+      width: 100%;
+      background: #101a2b;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
 
-      h1 {
-        font-size: 1.25rem;
-        margin-bottom: 4px;
-      }
+    .modal h2 {
+      margin: 0 0 10px;
+      font-size: 38px;
+    }
 
-      .description {
-        display: none;
+    .modal p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
       }
 
       .stats {
-        gap: 6px;
-        margin-bottom: 8px;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stat:last-child {
+        grid-column: 1 / -1;
+      }
+
+      canvas {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      header {
+        padding-top: 16px;
+      }
+
+      main {
+        padding: 8px 12px 24px;
+        gap: 12px;
+      }
+
+      .stats {
+        gap: 8px;
       }
 
       .stat {
-        padding: 7px;
+        padding: 12px;
+        min-height: 82px;
       }
 
-      .label {
-        font-size: 0.62rem;
+      .chart-panel,
+      .trade-panel,
+      .portfolio-panel,
+      .news-panel,
+      .log-panel,
+      .market-grid {
+        padding: 12px;
       }
 
-      .value {
-        font-size: 0.9rem;
+      .stock-row {
+        grid-template-columns: 1fr;
       }
 
-      .buttons {
-        gap: 6px;
-        margin-bottom: 6px;
+      .price,
+      .mini {
+        text-align: left;
       }
 
-      button {
-        min-width: 80px;
-        padding: 9px 10px;
-        font-size: 0.78rem;
-      }
-
-      .message {
-        min-height: 34px;
-        font-size: 0.75rem;
-        line-height: 1.45;
+      th,
+      td {
+        font-size: 12px;
+        padding: 8px 4px;
       }
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-
-  <section class="ui">
-    <h1>3D 63 PUZZLE</h1>
-
-    <p class="description">
-      4×4×4の立体スライドパズル。空白マスに3次元的に隣接するタイルだけ動かせます。
-    </p>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="label">MOVES</div>
-        <div class="value" id="moves">0</div>
+  <header>
+    <div class="title-row">
+      <div>
+        <h1>DAY TRADE DASHBOARD</h1>
+        <div class="subtitle">仮想資金200万円から始める、超短期トレード体験ゲーム</div>
       </div>
-      <div class="stat">
-        <div class="label">TIME</div>
-        <div class="value" id="time">0.0s</div>
-      </div>
-      <div class="stat">
-        <div class="label">BEST</div>
-        <div class="value" id="best">--</div>
+      <div class="header-actions">
+        <button id="pauseBtn" class="secondary">一時停止</button>
+        <button id="resetBtn">リセット</button>
       </div>
     </div>
+  </header>
 
-    <div class="buttons">
-      <button id="shuffleBtn">シャッフル</button>
-      <button id="resetBtn" class="secondary">リセット</button>
-      <button id="hintBtn" class="secondary">ヒント</button>
+  <main>
+    <section class="stats">
+      <div class="stat">
+        <div class="label">総資産</div>
+        <div class="value" id="totalAsset">¥2,000,000</div>
+        <div class="change" id="assetChange">±0</div>
+      </div>
+      <div class="stat">
+        <div class="label">現金</div>
+        <div class="value" id="cash">¥2,000,000</div>
+        <div class="change">買付余力</div>
+      </div>
+      <div class="stat">
+        <div class="label">評価損益</div>
+        <div class="value" id="unrealized">¥0</div>
+        <div class="change">保有株の含み損益</div>
+      </div>
+      <div class="stat">
+        <div class="label">実現損益</div>
+        <div class="value" id="realized">¥0</div>
+        <div class="change">売却済みの損益</div>
+      </div>
+      <div class="stat">
+        <div class="label">ゲーム時間</div>
+        <div class="value" id="timeLabel">09:00</div>
+        <div class="change" id="speedLabel">1秒 = 1分</div>
+      </div>
+    </section>
+
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" id="chartTitle">チャート</div>
+          <div class="hint" id="stockInfo">銘柄を選択してください</div>
+        </div>
+        <div class="stock-tabs" id="stockTabs"></div>
+      </div>
+      <canvas id="chart" width="900" height="420"></canvas>
+    </section>
+
+    <aside class="side">
+      <section class="panel trade-panel">
+        <div class="panel-head">
+          <div class="panel-title">注文パネル</div>
+        </div>
+        <div class="trade-box">
+          <div class="selected-stock">
+            <div class="selected-main">
+              <div>
+                <div class="label">選択中</div>
+                <div class="stock-name" id="selectedName">---</div>
+              </div>
+              <div>
+                <div class="label">現在値</div>
+                <div class="price" id="selectedPrice">---</div>
+              </div>
+            </div>
+            <div class="hint" id="spreadInfo">買値/売値スプレッドあり</div>
+          </div>
+
+          <div>
+            <div class="label">株数</div>
+            <input id="quantity" type="number" min="1" step="1" value="100" />
+          </div>
+
+          <div class="trade-actions">
+            <button class="buy" id="buyBtn">成行買い</button>
+            <button class="sell" id="sellBtn">成行売り</button>
+          </div>
+
+          <div class="hint">
+            仕様：買いはAsk価格、売りはBid価格で即時約定。手数料は約定代金の0.08%、最低55円。
+            大きい注文ほど少し不利な価格になります。
+          </div>
+        </div>
+      </section>
+
+      <section class="panel portfolio-panel">
+        <div class="panel-head">
+          <div class="panel-title">保有ポートフォリオ</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>銘柄</th>
+                <th>株数</th>
+                <th>平均</th>
+                <th>損益</th>
+              </tr>
+            </thead>
+            <tbody id="portfolioBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+
+    <section class="panel market-grid">
+      <div class="panel-head">
+        <div class="panel-title">マーケット</div>
+        <div class="hint">銘柄ごとにトレンド・ボラティリティ・ニュース感応度が違います</div>
+      </div>
+      <div id="marketList"></div>
+    </section>
+
+    <section class="panel news-panel">
+      <div class="panel-head">
+        <div class="panel-title">ニュース</div>
+      </div>
+      <div id="newsList"></div>
+    </section>
+
+    <section class="panel log-panel">
+      <div class="panel-head">
+        <div class="panel-title">約定ログ</div>
+      </div>
+      <div id="logList"></div>
+    </section>
+  </main>
+
+  <div class="game-over" id="gameOver">
+    <div class="modal">
+      <h2>GAME OVER</h2>
+      <p>
+        総資産が50万円未満になりました。<br>
+        デイトレの敵は相場だけじゃない。スプレッド、手数料、焦り、全部です。
+      </p>
+      <button id="modalResetBtn">もう一度プレイ</button>
     </div>
+  </div>
 
-    <p class="message" id="message">
-      ドラッグで回転、ホイールでズーム。シャッフルして開始！
-    </p>
-  </section>
+  <script>
+    "use strict";
 
-  <section class="help">
-    <strong>操作</strong><br>
-    ・ドラッグ：キューブ回転<br>
-    ・ホイール：ズーム<br>
-    ・タイルをクリック：移動<br>
-    ・黄色いワイヤー：空白マス<br>
-    ・ヒントON：動かせるタイルが光る
-  </section>
+    const INITIAL_CASH = 2_000_000;
+    const GAME_OVER_ASSET = 500_000;
+    const MARKET_OPEN_MIN = 9 * 60;
+    const MARKET_CLOSE_MIN = 15 * 60;
+    const MAX_HISTORY = 180;
 
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    const stocks = [
+      {
+        id: "AIW",
+        name: "AI Works",
+        desc: "AI・半導体テーマ。値動き荒め",
+        price: 1480,
+        base: 1480,
+        volatility: 0.010,
+        trend: 0.00035,
+        meanRevert: 0.012,
+        spreadRate: 0.0022,
+        liquidity: 0.75,
+        newsSensitivity: 1.4,
+        history: []
+      },
+      {
+        id: "MTR",
+        name: "Metro Retail",
+        desc: "小売。安定寄りでゆっくり動く",
+        price: 820,
+        base: 820,
+        volatility: 0.004,
+        trend: 0.00005,
+        meanRevert: 0.025,
+        spreadRate: 0.0010,
+        liquidity: 1.6,
+        newsSensitivity: 0.7,
+        history: []
+      },
+      {
+        id: "BIO",
+        name: "BioSpark",
+        desc: "バイオ。ニュースで急騰急落しやすい",
+        price: 530,
+        base: 530,
+        volatility: 0.014,
+        trend: -0.00005,
+        meanRevert: 0.008,
+        spreadRate: 0.0034,
+        liquidity: 0.45,
+        newsSensitivity: 2.1,
+        history: []
+      },
+      {
+        id: "BNK",
+        name: "Blue Bank",
+        desc: "銀行。中くらいの変動",
+        price: 2200,
+        base: 2200,
+        volatility: 0.006,
+        trend: 0.00010,
+        meanRevert: 0.018,
+        spreadRate: 0.0014,
+        liquidity: 1.25,
+        newsSensitivity: 1.0,
+        history: []
+      },
+      {
+        id: "GME",
+        name: "Galaxy Media",
+        desc: "ゲーム・メディア。短期人気で乱高下",
+        price: 3100,
+        base: 3100,
+        volatility: 0.012,
+        trend: 0.00020,
+        meanRevert: 0.010,
+        spreadRate: 0.0028,
+        liquidity: 0.65,
+        newsSensitivity: 1.7,
+        history: []
+      }
+    ];
+
+    const state = {
+      cash: INITIAL_CASH,
+      realized: 0,
+      selectedId: "AIW",
+      holdings: {},
+      logs: [],
+      news: [],
+      minute: MARKET_OPEN_MIN,
+      paused: false,
+      gameOver: false,
+      tickCount: 0,
+      lastTotalAsset: INITIAL_CASH
+    };
+
+    const els = {
+      totalAsset: document.getElementById("totalAsset"),
+      assetChange: document.getElementById("assetChange"),
+      cash: document.getElementById("cash"),
+      unrealized: document.getElementById("unrealized"),
+      realized: document.getElementById("realized"),
+      timeLabel: document.getElementById("timeLabel"),
+      speedLabel: document.getElementById("speedLabel"),
+      stockTabs: document.getElementById("stockTabs"),
+      chart: document.getElementById("chart"),
+      chartTitle: document.getElementById("chartTitle"),
+      stockInfo: document.getElementById("stockInfo"),
+      selectedName: document.getElementById("selectedName"),
+      selectedPrice: document.getElementById("selectedPrice"),
+      spreadInfo: document.getElementById("spreadInfo"),
+      quantity: document.getElementById("quantity"),
+      buyBtn: document.getElementById("buyBtn"),
+      sellBtn: document.getElementById("sellBtn"),
+      marketList: document.getElementById("marketList"),
+      portfolioBody: document.getElementById("portfolioBody"),
+      newsList: document.getElementById("newsList"),
+      logList: document.getElementById("logList"),
+      pauseBtn: document.getElementById("pauseBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      gameOver: document.getElementById("gameOver"),
+      modalResetBtn: document.getElementById("modalResetBtn")
+    };
+
+    const ctx = els.chart.getContext("2d");
+
+    function yen(n) {
+      return "¥" + Math.round(n).toLocaleString("ja-JP");
+    }
+
+    function pct(n) {
+      const sign = n > 0 ? "+" : "";
+      return sign + n.toFixed(2) + "%";
+    }
+
+    function randn() {
+      let u = 0;
+      let v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+
+    function getStock(id) {
+      return stocks.find(s => s.id === id);
+    }
+
+    function getSelectedStock() {
+      return getStock(state.selectedId);
+    }
+
+    function bidPrice(stock, quantity = 0) {
+      const impact = marketImpact(stock, quantity);
+      return Math.max(1, stock.price * (1 - stock.spreadRate / 2 - impact));
+    }
+
+    function askPrice(stock, quantity = 0) {
+      const impact = marketImpact(stock, quantity);
+      return Math.max(1, stock.price * (1 + stock.spreadRate / 2 + impact));
+    }
+
+    function marketImpact(stock, quantity) {
+      if (!quantity || quantity <= 0) return 0;
+      return Math.min(0.018, quantity / (120000 * stock.liquidity));
+    }
+
+    function commission(amount) {
+      if (amount <= 0) return 0;
+      return Math.max(55, amount * 0.0008);
+    }
+
+    function formatTime(minute) {
+      const h = Math.floor(minute / 60);
+      const m = minute % 60;
+      return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+    }
+
+    function initStocks() {
+      stocks.forEach(stock => {
+        stock.price = stock.base;
+        stock.history = Array.from({ length: 40 }, () => stock.price);
+      });
+    }
+
+    function resetGame() {
+      state.cash = INITIAL_CASH;
+      state.realized = 0;
+      state.selectedId = "AIW";
+      state.holdings = {};
+      state.logs = [];
+      state.news = [
+        {
+          text: "市場が開きました。各銘柄がリアルタイムに動き始めます。",
+          type: "normal"
+        }
+      ];
+      state.minute = MARKET_OPEN_MIN;
+      state.paused = false;
+      state.gameOver = false;
+      state.tickCount = 0;
+      state.lastTotalAsset = INITIAL_CASH;
+      els.gameOver.classList.remove("show");
+      els.pauseBtn.textContent = "一時停止";
+      initStocks();
+      renderAll();
+    }
+
+    function createTabs() {
+      els.stockTabs.innerHTML = "";
+      stocks.forEach(stock => {
+        const tab = document.createElement("div");
+        tab.className = "stock-tab";
+        tab.textContent = stock.id;
+        tab.onclick = () => {
+          state.selectedId = stock.id;
+          renderAll();
+        };
+        els.stockTabs.appendChild(tab);
+      });
+    }
+
+    function updateMarket() {
+      state.tickCount++;
+
+      stocks.forEach(stock => {
+        const noise = randn() * stock.volatility;
+        const revert = (stock.base - stock.price) / stock.base * stock.meanRevert;
+        const wave = Math.sin((state.tickCount / 18) + stock.base) * stock.volatility * 0.25;
+        const momentum = stock.trend;
+
+        let rate = noise + revert + wave + momentum;
+
+        if (Math.random() < 0.006 * stock.newsSensitivity) {
+          const shock = (Math.random() > 0.5 ? 1 : -1) * (0.025 + Math.random() * 0.07) * stock.newsSensitivity;
+          rate += shock;
+          addNews(stock, shock);
+        }
+
+        stock.price = Math.max(50, stock.price * (1 + rate));
+        stock.history.push(stock.price);
+
+        if (stock.history.length > MAX_HISTORY) {
+          stock.history.shift();
+        }
+      });
+
+      state.minute++;
+      if (state.minute > MARKET_CLOSE_MIN) {
+        state.minute = MARKET_OPEN_MIN;
+        addGeneralNews("翌営業日が始まりました。持ち越しペナルティとして全銘柄に小さなギャップが発生。");
+        stocks.forEach(stock => {
+          const gap = randn() * stock.volatility * 2.5;
+          stock.price = Math.max(50, stock.price * (1 + gap));
+          stock.history.push(stock.price);
+        });
       }
     }
-  </script>
 
-  <script type="module">
-    import * as THREE from "three";
-    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    function addNews(stock, shock) {
+      const goodNews = [
+        "新サービスへの期待買いが入っています。",
+        "短期筋の資金流入が観測されています。",
+        "決算期待で買いが優勢です。",
+        "SNSで話題化し、出来高が急増しています。"
+      ];
 
-    const canvas = document.getElementById("canvas");
-    const movesEl = document.getElementById("moves");
-    const timeEl = document.getElementById("time");
-    const bestEl = document.getElementById("best");
-    const messageEl = document.getElementById("message");
-    const shuffleBtn = document.getElementById("shuffleBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const hintBtn = document.getElementById("hintBtn");
+      const badNews = [
+        "利益確定売りが強まっています。",
+        "業績懸念で売りが先行しています。",
+        "大口売りの観測で急落しています。",
+        "市場全体のリスク回避で売られています。"
+      ];
 
-    const N = 4;
-    const TOTAL = N * N * N;
-    const goal = Array.from({ length: TOTAL }, (_, i) => {
-      return i === TOTAL - 1 ? 0 : i + 1;
-    });
-
-    let tiles = [...goal];
-    let moves = 0;
-    let started = false;
-    let cleared = false;
-    let startTime = 0;
-    let timerId = null;
-    let showHints = false;
-
-    const tileMeshes = [];
-    let emptyWire = null;
-
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x050510, 10, 28);
-
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      100
-    );
-
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true
-    });
-
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.minDistance = 6;
-    controls.maxDistance = 24;
-    controls.enablePan = false;
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
-    scene.add(ambientLight);
-
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
-    dirLight.position.set(5, 8, 7);
-    scene.add(dirLight);
-
-    const pointLight1 = new THREE.PointLight(0x00eaff, 3.0, 25);
-    pointLight1.position.set(-5, 4, 5);
-    scene.add(pointLight1);
-
-    const pointLight2 = new THREE.PointLight(0xff4ecd, 2.7, 25);
-    pointLight2.position.set(5, -4, -5);
-    scene.add(pointLight2);
-
-    const cubeGroup = new THREE.Group();
-    scene.add(cubeGroup);
-
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
-
-    const tileGeometry = new THREE.BoxGeometry(0.88, 0.88, 0.88);
-    const spacing = 1.18;
-
-    applyResponsiveCamera();
-    updateBestDisplay();
-    buildSceneFromTiles();
-    animate();
-
-    function isMobile() {
-      return window.innerWidth <= 720;
+      const list = shock > 0 ? goodNews : badNews;
+      const text = `${stock.name}: ${list[Math.floor(Math.random() * list.length)]} ${pct(shock * 100)}`;
+      state.news.unshift({ text, type: shock > 0 ? "good" : "bad" });
+      state.news = state.news.slice(0, 6);
     }
 
-    function applyResponsiveCamera() {
-      if (isMobile()) {
-        camera.position.set(6.5, 7.2, 11.5);
-        cubeGroup.position.y = 1.45;
-        controls.target.set(0, 1.1, 0);
+    function addGeneralNews(text) {
+      state.news.unshift({ text, type: "normal" });
+      state.news = state.news.slice(0, 6);
+    }
+
+    function buy() {
+      if (state.gameOver) return;
+
+      const stock = getSelectedStock();
+      const qty = Math.floor(Number(els.quantity.value));
+
+      if (!Number.isFinite(qty) || qty <= 0) {
+        addLog("株数を1以上で入力してください。");
+        renderLogs();
+        return;
+      }
+
+      const price = askPrice(stock, qty);
+      const amount = price * qty;
+      const fee = commission(amount);
+      const total = amount + fee;
+
+      if (state.cash < total) {
+        addLog(`${stock.name}を${qty}株買うには現金が足りません。必要額: ${yen(total)}`);
+        renderLogs();
+        return;
+      }
+
+      state.cash -= total;
+
+      if (!state.holdings[stock.id]) {
+        state.holdings[stock.id] = {
+          qty: 0,
+          avg: 0
+        };
+      }
+
+      const h = state.holdings[stock.id];
+      h.avg = ((h.avg * h.qty) + amount + fee) / (h.qty + qty);
+      h.qty += qty;
+
+      addLog(`買い 約定: ${stock.name} ${qty}株 @${yen(price)} / 手数料 ${yen(fee)}`);
+      renderAll();
+    }
+
+    function sell() {
+      if (state.gameOver) return;
+
+      const stock = getSelectedStock();
+      const qty = Math.floor(Number(els.quantity.value));
+      const h = state.holdings[stock.id];
+
+      if (!Number.isFinite(qty) || qty <= 0) {
+        addLog("株数を1以上で入力してください。");
+        renderLogs();
+        return;
+      }
+
+      if (!h || h.qty < qty) {
+        addLog(`${stock.name}の保有株数が足りません。`);
+        renderLogs();
+        return;
+      }
+
+      const price = bidPrice(stock, qty);
+      const amount = price * qty;
+      const fee = commission(amount);
+      const proceeds = amount - fee;
+      const cost = h.avg * qty;
+      const profit = proceeds - cost;
+
+      state.cash += proceeds;
+      state.realized += profit;
+
+      h.qty -= qty;
+      if (h.qty <= 0) {
+        delete state.holdings[stock.id];
+      }
+
+      addLog(`売り 約定: ${stock.name} ${qty}株 @${yen(price)} / 損益 ${yen(profit)}`);
+      renderAll();
+    }
+
+    function addLog(text) {
+      state.logs.unshift(`[${formatTime(state.minute)}] ${text}`);
+      state.logs = state.logs.slice(0, 9);
+    }
+
+    function calcPortfolioValue() {
+      let value = 0;
+      Object.entries(state.holdings).forEach(([id, h]) => {
+        const stock = getStock(id);
+        value += bidPrice(stock, h.qty) * h.qty;
+      });
+      return value;
+    }
+
+    function calcUnrealized() {
+      let profit = 0;
+      Object.entries(state.holdings).forEach(([id, h]) => {
+        const stock = getStock(id);
+        const value = bidPrice(stock, h.qty) * h.qty;
+        const cost = h.avg * h.qty;
+        profit += value - cost;
+      });
+      return profit;
+    }
+
+    function calcTotalAsset() {
+      return state.cash + calcPortfolioValue();
+    }
+
+    function checkGameOver() {
+      const total = calcTotalAsset();
+      if (total < GAME_OVER_ASSET && !state.gameOver) {
+        state.gameOver = true;
+        state.paused = true;
+        els.gameOver.classList.add("show");
+      }
+    }
+
+    function renderAll() {
+      createTabs();
+      renderStats();
+      renderMarket();
+      renderTradePanel();
+      renderPortfolio();
+      renderNews();
+      renderLogs();
+      drawChart();
+      checkGameOver();
+    }
+
+    function renderStats() {
+      const total = calcTotalAsset();
+      const unrealized = calcUnrealized();
+      const diff = total - INITIAL_CASH;
+
+      els.totalAsset.textContent = yen(total);
+      els.cash.textContent = yen(state.cash);
+      els.unrealized.textContent = yen(unrealized);
+      els.realized.textContent = yen(state.realized);
+      els.timeLabel.textContent = formatTime(state.minute);
+
+      els.assetChange.textContent = `${diff >= 0 ? "+" : ""}${yen(diff)} / ${pct((total / INITIAL_CASH - 1) * 100)}`;
+      setSignClass(els.assetChange, diff);
+      setSignClass(els.unrealized, unrealized);
+      setSignClass(els.realized, state.realized);
+
+      if (total < 800000) {
+        els.totalAsset.classList.add("negative");
       } else {
-        camera.position.set(7.8, 6.4, 9.2);
-        cubeGroup.position.y = 0;
-        controls.target.set(0, 0, 0);
+        els.totalAsset.classList.remove("negative");
       }
 
-      controls.update();
+      state.lastTotalAsset = total;
     }
 
-    function indexToXYZ(index) {
-      const z = Math.floor(index / (N * N));
-      const rest = index % (N * N);
-      const y = Math.floor(rest / N);
-      const x = rest % N;
-      return { x, y, z };
+    function setSignClass(el, value) {
+      el.classList.remove("positive", "negative");
+      if (value > 0) el.classList.add("positive");
+      if (value < 0) el.classList.add("negative");
     }
 
-    function xyzToIndex(x, y, z) {
-      return z * N * N + y * N + x;
+    function renderMarket() {
+      els.marketList.innerHTML = "";
+
+      stocks.forEach(stock => {
+        const first = stock.history[0] || stock.price;
+        const rate = (stock.price / first - 1) * 100;
+        const row = document.createElement("div");
+        row.className = "stock-row";
+        row.onclick = () => {
+          state.selectedId = stock.id;
+          renderAll();
+        };
+
+        row.innerHTML = `
+          <div>
+            <div class="stock-name">${stock.id} / ${stock.name}</div>
+            <div class="stock-desc">${stock.desc}</div>
+          </div>
+          <div>
+            <div class="price">${yen(stock.price)}</div>
+            <div class="mini">現在値</div>
+          </div>
+          <div>
+            <div class="price ${rate >= 0 ? "positive" : "negative"}">${pct(rate)}</div>
+            <div class="mini">始値比</div>
+          </div>
+        `;
+
+        els.marketList.appendChild(row);
+      });
+
+      Array.from(els.stockTabs.children).forEach((tab, i) => {
+        tab.classList.toggle("active", stocks[i].id === state.selectedId);
+      });
     }
 
-    function positionFromIndex(index) {
-      const { x, y, z } = indexToXYZ(index);
+    function renderTradePanel() {
+      const stock = getSelectedStock();
+      const qty = Math.max(1, Math.floor(Number(els.quantity.value) || 1));
+      const bid = bidPrice(stock, qty);
+      const ask = askPrice(stock, qty);
+      const spread = ask - bid;
 
-      return new THREE.Vector3(
-        (x - 1.5) * spacing,
-        (1.5 - y) * spacing,
-        (z - 1.5) * spacing
-      );
+      els.selectedName.textContent = `${stock.id} / ${stock.name}`;
+      els.selectedPrice.textContent = yen(stock.price);
+      els.spreadInfo.textContent = `買値 Ask: ${yen(ask)} / 売値 Bid: ${yen(bid)} / 差: ${yen(spread)}`;
+      els.chartTitle.textContent = `${stock.name} チャート`;
+      els.stockInfo.textContent = `${stock.desc}｜ボラティリティ ${pct(stock.volatility * 100)}｜流動性 ${stock.liquidity.toFixed(2)}`;
     }
 
-    function getEmptyIndex() {
-      return tiles.indexOf(0);
+    function renderPortfolio() {
+      els.portfolioBody.innerHTML = "";
+
+      const entries = Object.entries(state.holdings);
+
+      if (entries.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="4" style="text-align:left;color:var(--muted);">まだ保有銘柄はありません</td>`;
+        els.portfolioBody.appendChild(tr);
+        return;
+      }
+
+      entries.forEach(([id, h]) => {
+        const stock = getStock(id);
+        const value = bidPrice(stock, h.qty) * h.qty;
+        const cost = h.avg * h.qty;
+        const profit = value - cost;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${id}</td>
+          <td>${h.qty.toLocaleString("ja-JP")}</td>
+          <td>${yen(h.avg)}</td>
+          <td class="${profit >= 0 ? "positive" : "negative"}">${yen(profit)}</td>
+        `;
+        els.portfolioBody.appendChild(tr);
+      });
     }
 
-    function isNeighbor3D(a, b) {
-      const A = indexToXYZ(a);
-      const B = indexToXYZ(b);
+    function renderNews() {
+      els.newsList.innerHTML = "";
 
-      const distance =
-        Math.abs(A.x - B.x) +
-        Math.abs(A.y - B.y) +
-        Math.abs(A.z - B.z);
+      if (state.news.length === 0) {
+        els.newsList.innerHTML = `<div class="hint">ニュースはまだありません</div>`;
+        return;
+      }
 
-      return distance === 1;
+      state.news.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "news-item";
+        if (item.type === "good") div.style.borderLeftColor = "var(--green)";
+        if (item.type === "bad") div.style.borderLeftColor = "var(--red)";
+        div.textContent = item.text;
+        els.newsList.appendChild(div);
+      });
     }
 
-    function getMovableIndexes(emptyIndex) {
-      const { x, y, z } = indexToXYZ(emptyIndex);
-      const indexes = [];
+    function renderLogs() {
+      els.logList.innerHTML = "";
 
-      if (x > 0) indexes.push(xyzToIndex(x - 1, y, z));
-      if (x < N - 1) indexes.push(xyzToIndex(x + 1, y, z));
-      if (y > 0) indexes.push(xyzToIndex(x, y - 1, z));
-      if (y < N - 1) indexes.push(xyzToIndex(x, y + 1, z));
-      if (z > 0) indexes.push(xyzToIndex(x, y, z - 1));
-      if (z < N - 1) indexes.push(xyzToIndex(x, y, z + 1));
+      if (state.logs.length === 0) {
+        els.logList.innerHTML = `<div class="hint">まだ約定はありません</div>`;
+        return;
+      }
 
-      return indexes;
+      state.logs.forEach(log => {
+        const div = document.createElement("div");
+        div.className = "log-item";
+        div.textContent = log;
+        els.logList.appendChild(div);
+      });
     }
 
-    function createTileTexture(number, isCorrect, isMovable) {
-      const textureCanvas = document.createElement("canvas");
-      textureCanvas.width = 256;
-      textureCanvas.height = 256;
+    function drawChart() {
+      const stock = getSelectedStock();
+      const canvas = els.chart;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
 
-      const ctx = textureCanvas.getContext("2d");
+      if (canvas.width !== Math.floor(rect.width * dpr) || canvas.height !== Math.floor(rect.height * dpr)) {
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+      }
 
-      const hue = (number * 31) % 360;
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
 
-      const grad = ctx.createLinearGradient(0, 0, 256, 256);
+      const pad = 44 * dpr;
+      const data = stock.history;
+      const min = Math.min(...data) * 0.995;
+      const max = Math.max(...data) * 1.005;
+      const range = Math.max(1, max - min);
 
-      if (isCorrect) {
-        grad.addColorStop(0, "#ffe66d");
-        grad.addColorStop(1, "#ff4ecd");
-      } else if (isMovable) {
-        grad.addColorStop(0, "#66ffcc");
-        grad.addColorStop(1, "#00eaff");
+      ctx.lineWidth = 1 * dpr;
+      ctx.strokeStyle = "rgba(255,255,255,0.09)";
+
+      for (let i = 0; i <= 5; i++) {
+        const y = pad + ((h - pad * 2) / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(pad, y);
+        ctx.lineTo(w - pad, y);
+        ctx.stroke();
+
+        const price = max - (range / 5) * i;
+        ctx.fillStyle = "rgba(234,242,255,0.58)";
+        ctx.font = `${11 * dpr}px system-ui`;
+        ctx.textAlign = "right";
+        ctx.fillText(Math.round(price).toLocaleString("ja-JP"), pad - 8 * dpr, y + 4 * dpr);
+      }
+
+      const first = data[0];
+      const last = data[data.length - 1];
+      const up = last >= first;
+
+      const grad = ctx.createLinearGradient(0, pad, 0, h - pad);
+      if (up) {
+        grad.addColorStop(0, "rgba(56,224,140,0.34)");
+        grad.addColorStop(1, "rgba(56,224,140,0.00)");
       } else {
-        grad.addColorStop(0, `hsl(${hue}, 90%, 58%)`);
-        grad.addColorStop(1, `hsl(${(hue + 70) % 360}, 90%, 42%)`);
+        grad.addColorStop(0, "rgba(255,91,110,0.34)");
+        grad.addColorStop(1, "rgba(255,91,110,0.00)");
       }
 
+      const points = data.map((price, i) => {
+        const x = pad + (i / Math.max(1, data.length - 1)) * (w - pad * 2);
+        const y = pad + ((max - price) / range) * (h - pad * 2);
+        return { x, y };
+      });
+
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.lineTo(points[points.length - 1].x, h - pad);
+      ctx.lineTo(points[0].x, h - pad);
+      ctx.closePath();
       ctx.fillStyle = grad;
-      roundRect(ctx, 16, 16, 224, 224, 34);
       ctx.fill();
 
-      ctx.strokeStyle = "rgba(255,255,255,0.65)";
-      ctx.lineWidth = isMovable ? 12 : 6;
-      roundRect(ctx, 16, 16, 224, 224, 34);
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.lineWidth = 3 * dpr;
+      ctx.strokeStyle = up ? "#38e08c" : "#ff5b6e";
       ctx.stroke();
 
-      ctx.shadowColor = "rgba(0,0,0,0.65)";
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = "white";
-      ctx.font = "900 92px system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(String(number), 128, 134);
-
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "rgba(255,255,255,0.55)";
-      ctx.font = "700 24px system-ui, sans-serif";
-      ctx.fillText("63 PUZZLE", 128, 210);
-
-      const texture = new THREE.CanvasTexture(textureCanvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-
-      return texture;
-    }
-
-    function roundRect(ctx, x, y, w, h, r) {
+      const lastPoint = points[points.length - 1];
       ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
+      ctx.arc(lastPoint.x, lastPoint.y, 5 * dpr, 0, Math.PI * 2);
+      ctx.fillStyle = up ? "#38e08c" : "#ff5b6e";
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(234,242,255,0.88)";
+      ctx.font = `bold ${17 * dpr}px system-ui`;
+      ctx.textAlign = "left";
+      ctx.fillText(`${stock.id} ${yen(stock.price)}`, pad, 28 * dpr);
+
+      const rate = (last / first - 1) * 100;
+      ctx.fillStyle = up ? "#38e08c" : "#ff5b6e";
+      ctx.font = `bold ${14 * dpr}px system-ui`;
+      ctx.fillText(`${pct(rate)}`, pad + 150 * dpr, 28 * dpr);
     }
 
-    function clearCubeGroup() {
-      while (cubeGroup.children.length > 0) {
-        const obj = cubeGroup.children.pop();
-
-        if (obj.geometry) {
-          obj.geometry.dispose();
-        }
-
-        if (obj.material) {
-          if (Array.isArray(obj.material)) {
-            obj.material.forEach((mat) => {
-              if (mat.map) mat.map.dispose();
-              mat.dispose();
-            });
-          } else {
-            if (obj.material.map) obj.material.map.dispose();
-            obj.material.dispose();
-          }
-        }
-      }
-
-      tileMeshes.length = 0;
-      emptyWire = null;
-    }
-
-    function buildSceneFromTiles() {
-      clearCubeGroup();
-
-      const emptyIndex = getEmptyIndex();
-      const movableIndexes = getMovableIndexes(emptyIndex);
-
-      for (let i = 0; i < TOTAL; i++) {
-        const number = tiles[i];
-        const pos = positionFromIndex(i);
-
-        if (number === 0) {
-          const emptyGeometry = new THREE.BoxGeometry(0.92, 0.92, 0.92);
-          const emptyEdges = new THREE.EdgesGeometry(emptyGeometry);
-          const emptyMaterial = new THREE.LineBasicMaterial({
-            color: 0xffe66d
-          });
-
-          emptyWire = new THREE.LineSegments(emptyEdges, emptyMaterial);
-          emptyWire.position.copy(pos);
-          cubeGroup.add(emptyWire);
-          continue;
-        }
-
-        const isCorrect = number === goal[i];
-        const isMovable = showHints && movableIndexes.includes(i);
-
-        const texture = createTileTexture(number, isCorrect, isMovable);
-
-        const material = new THREE.MeshStandardMaterial({
-          map: texture,
-          roughness: 0.38,
-          metalness: 0.28,
-          emissive: isMovable
-            ? new THREE.Color(0x003333)
-            : new THREE.Color(0x000000),
-          transparent: true,
-          opacity: 0.96
-        });
-
-        const mesh = new THREE.Mesh(tileGeometry, material);
-        mesh.position.copy(pos);
-        mesh.userData.index = i;
-        mesh.userData.number = number;
-
-        const edgeGeometry = new THREE.EdgesGeometry(tileGeometry);
-        const edgeMaterial = new THREE.LineBasicMaterial({
-          color: isMovable ? 0xffffff : 0x111111,
-          transparent: true,
-          opacity: isMovable ? 0.95 : 0.4
-        });
-
-        const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
-        edges.position.copy(pos);
-        edges.userData.isEdge = true;
-
-        cubeGroup.add(mesh);
-        cubeGroup.add(edges);
-
-        tileMeshes.push(mesh);
-      }
-
-      movesEl.textContent = moves;
-    }
-
-    function moveTile(index) {
-      if (cleared) return;
-
-      const emptyIndex = getEmptyIndex();
-
-      if (!isNeighbor3D(index, emptyIndex)) {
-        messageEl.textContent = "そのタイルは動かせない！空白マスに隣接したタイルをクリックしてね。";
-        return;
-      }
-
-      if (!started) {
-        startTimer();
-        started = true;
-      }
-
-      [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
-      moves++;
-
-      buildSceneFromTiles();
-
-      if (isSolved()) {
-        gameClear();
-      } else {
-        messageEl.textContent = "移動成功。キューブを回転させながら空白マスを追っていこう。";
+    function gameLoop() {
+      if (!state.paused && !state.gameOver) {
+        updateMarket();
+        renderAll();
       }
     }
 
-    function isSolved() {
-      return tiles.every((num, index) => num === goal[index]);
-    }
+    els.buyBtn.addEventListener("click", buy);
+    els.sellBtn.addEventListener("click", sell);
 
-    function shuffle() {
-      resetState();
-      tiles = [...goal];
-
-      let previousEmptyIndex = -1;
-
-      for (let i = 0; i < 1000; i++) {
-        const emptyIndex = getEmptyIndex();
-
-        let candidates = getMovableIndexes(emptyIndex)
-          .filter(index => index !== previousEmptyIndex);
-
-        if (candidates.length === 0) {
-          candidates = getMovableIndexes(emptyIndex);
-        }
-
-        const picked = candidates[Math.floor(Math.random() * candidates.length)];
-
-        [tiles[picked], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[picked]];
-        previousEmptyIndex = emptyIndex;
-      }
-
-      moves = 0;
-      messageEl.textContent = "スタート！黄色いワイヤーが空白マス。隣接タイルをクリックして動かそう。";
-      buildSceneFromTiles();
-    }
-
-    function reset() {
-      resetState();
-      tiles = [...goal];
-      moves = 0;
-      messageEl.textContent = "完成形に戻しました。シャッフルで再スタート！";
-      buildSceneFromTiles();
-    }
-
-    function resetState() {
-      stopTimer();
-      started = false;
-      cleared = false;
-      showHints = false;
-      moves = 0;
-      startTime = 0;
-      timeEl.textContent = "0.0s";
-      hintBtn.textContent = "ヒント";
-    }
-
-    function startTimer() {
-      startTime = performance.now();
-
-      timerId = setInterval(() => {
-        const seconds = (performance.now() - startTime) / 1000;
-        timeEl.textContent = seconds.toFixed(1) + "s";
-      }, 100);
-    }
-
-    function stopTimer() {
-      if (timerId !== null) {
-        clearInterval(timerId);
-        timerId = null;
-      }
-    }
-
-    function gameClear() {
-      cleared = true;
-
-      const seconds = (performance.now() - startTime) / 1000;
-
-      stopTimer();
-      timeEl.textContent = seconds.toFixed(1) + "s";
-
-      messageEl.innerHTML = `
-        <span class="clear">CLEAR!</span><br>
-        クリアタイム：${seconds.toFixed(1)}秒 / 手数：${moves}手
-      `;
-
-      saveBest(moves, seconds);
-    }
-
-    function saveBest(currentMoves, currentSeconds) {
-      const old = JSON.parse(localStorage.getItem("puzzle63_3d_best") || "null");
-
-      const shouldUpdate =
-        !old ||
-        currentMoves < old.moves ||
-        (currentMoves === old.moves && currentSeconds < old.seconds);
-
-      if (shouldUpdate) {
-        localStorage.setItem("puzzle63_3d_best", JSON.stringify({
-          moves: currentMoves,
-          seconds: currentSeconds
-        }));
-
-        messageEl.innerHTML += "<br>自己ベスト更新！";
-        updateBestDisplay();
-      }
-    }
-
-    function updateBestDisplay() {
-      const best = JSON.parse(localStorage.getItem("puzzle63_3d_best") || "null");
-
-      if (!best) {
-        bestEl.textContent = "--";
-      } else {
-        bestEl.textContent = `${best.moves}手`;
-      }
-    }
-
-    function onPointerDown(event) {
-      if (event.target.closest(".ui")) {
-        return;
-      }
-
-      const rect = renderer.domElement.getBoundingClientRect();
-
-      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-      raycaster.setFromCamera(pointer, camera);
-
-      const intersects = raycaster.intersectObjects(tileMeshes, false);
-
-      if (intersects.length > 0) {
-        const mesh = intersects[0].object;
-        moveTile(mesh.userData.index);
-      }
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      controls.update();
-
-      if (emptyWire) {
-        emptyWire.rotation.x += 0.01;
-        emptyWire.rotation.y += 0.013;
-      }
-
-      cubeGroup.rotation.y += 0.0015;
-
-      renderer.render(scene, camera);
-    }
-
-    function onResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-
-      applyResponsiveCamera();
-
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    }
-
-    shuffleBtn.addEventListener("click", shuffle);
-    resetBtn.addEventListener("click", reset);
-
-    hintBtn.addEventListener("click", () => {
-      showHints = !showHints;
-      hintBtn.textContent = showHints ? "ヒントOFF" : "ヒント";
-      buildSceneFromTiles();
+    els.quantity.addEventListener("input", () => {
+      renderTradePanel();
     });
 
-    window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("resize", onResize);
+    els.pauseBtn.addEventListener("click", () => {
+      state.paused = !state.paused;
+      els.pauseBtn.textContent = state.paused ? "再開" : "一時停止";
+    });
+
+    els.resetBtn.addEventListener("click", resetGame);
+    els.modalResetBtn.addEventListener("click", resetGame);
+
+    window.addEventListener("resize", drawChart);
+
+    resetGame();
+    setInterval(gameLoop, 1000);
   </script>
 </body>
 </html>
