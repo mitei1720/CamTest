@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>63 Puzzle - 3D Slide Puzzle</title>
+  <title>3D 63 Puzzle</title>
   <style>
     * {
       box-sizing: border-box;
@@ -13,206 +13,109 @@
 
     body {
       min-height: 100vh;
+      overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: white;
       background:
-        radial-gradient(circle at top left, #273c75, transparent 35%),
-        radial-gradient(circle at bottom right, #9c27b0, transparent 35%),
+        radial-gradient(circle at top left, #202060, transparent 35%),
+        radial-gradient(circle at bottom right, #7b1fa2, transparent 35%),
         linear-gradient(135deg, #050510, #101020);
-      padding: 22px;
     }
 
-    .app {
-      width: min(1100px, 100%);
-      margin: 0 auto;
-      text-align: center;
+    #canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    .ui {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      width: min(360px, calc(100vw - 32px));
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.48);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 0 28px rgba(0, 234, 255, 0.18);
     }
 
     h1 {
-      font-size: clamp(2.1rem, 6vw, 4.5rem);
-      letter-spacing: 0.04em;
+      font-size: 1.65rem;
       margin-bottom: 8px;
       text-shadow:
-        0 0 12px rgba(0, 234, 255, 0.9),
-        0 0 30px rgba(255, 78, 205, 0.45);
+        0 0 10px rgba(0, 234, 255, 0.9),
+        0 0 24px rgba(255, 78, 205, 0.45);
     }
 
-    .subtitle {
-      color: rgba(255,255,255,0.78);
-      line-height: 1.7;
-      margin-bottom: 18px;
-      font-size: 0.95rem;
+    .description {
+      font-size: 0.86rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.78);
+      margin-bottom: 12px;
     }
 
-    .status {
+    .stats {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin: 0 auto 16px;
-      max-width: 720px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
-    .status-card {
-      padding: 12px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.09);
-      border: 1px solid rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
+    .stat {
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: center;
     }
 
     .label {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.62);
+      font-size: 0.68rem;
+      color: rgba(255, 255, 255, 0.58);
       margin-bottom: 4px;
     }
 
     .value {
-      font-size: 1.25rem;
+      font-size: 1.05rem;
       font-weight: 900;
     }
 
-    .controls {
+    .buttons {
       display: flex;
-      justify-content: center;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 18px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
-    button.action {
+    button {
+      flex: 1;
+      min-width: 100px;
       border: none;
       border-radius: 999px;
-      padding: 12px 18px;
+      padding: 11px 12px;
       color: white;
       font-weight: 800;
       cursor: pointer;
       background: linear-gradient(90deg, #00eaff, #ff4ecd);
-      box-shadow: 0 0 18px rgba(0, 234, 255, 0.35);
+      box-shadow: 0 0 18px rgba(0, 234, 255, 0.28);
     }
 
-    button.action.secondary {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.18);
+    button.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
       box-shadow: none;
     }
 
-    .cube {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .layer {
-      border-radius: 22px;
-      padding: 10px;
-      background:
-        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px),
-        rgba(0,0,0,0.34);
-      background-size: 22px 22px;
-      border: 1px solid rgba(255,255,255,0.16);
-      box-shadow:
-        0 0 24px rgba(0, 234, 255, 0.14),
-        inset 0 0 24px rgba(255,255,255,0.035);
-      transition: 0.2s ease;
-    }
-
-    .layer.active {
-      border-color: rgba(255, 230, 109, 0.85);
-      box-shadow:
-        0 0 28px rgba(255, 230, 109, 0.28),
-        inset 0 0 24px rgba(255,255,255,0.04);
-    }
-
-    .layer-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      color: rgba(255,255,255,0.86);
-      font-size: 0.85rem;
-      font-weight: 800;
-    }
-
-    .empty-marker {
-      font-size: 0.75rem;
-      color: #ffe66d;
-      opacity: 0;
-    }
-
-    .layer.active .empty-marker {
-      opacity: 1;
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      aspect-ratio: 1 / 1;
-    }
-
-    .tile,
-    .empty {
-      border-radius: 12px;
-      min-width: 0;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .tile {
-      border: none;
-      color: white;
-      font-weight: 900;
-      cursor: pointer;
-      font-size: clamp(0.78rem, 2.4vw, 1.28rem);
-      background: linear-gradient(135deg, #00eaff, #6c5ce7);
-      box-shadow:
-        0 0 12px rgba(0, 234, 255, 0.35),
-        inset 0 0 12px rgba(255,255,255,0.12);
-      transition:
-        transform 0.1s ease,
-        box-shadow 0.1s ease,
-        filter 0.1s ease;
-    }
-
-    .tile:hover {
-      transform: translateY(-2px) scale(1.03);
-      box-shadow:
-        0 0 18px rgba(255, 78, 205, 0.45),
-        inset 0 0 12px rgba(255,255,255,0.13);
-    }
-
-    .tile:active {
-      transform: scale(0.95);
-    }
-
-    .tile.correct {
-      background: linear-gradient(135deg, #ffe66d, #ff4ecd);
-      box-shadow:
-        0 0 14px rgba(255, 230, 109, 0.38),
-        inset 0 0 12px rgba(255,255,255,0.13);
-    }
-
-    .tile.movable {
-      outline: 2px solid rgba(255,255,255,0.85);
-      filter: brightness(1.2);
-    }
-
-    .empty {
-      background: rgba(255,255,255,0.04);
-      border: 1px dashed rgba(255,255,255,0.2);
-      display: grid;
-      place-items: center;
-      color: rgba(255,255,255,0.34);
-      font-size: 0.75rem;
-    }
-
     .message {
-      min-height: 54px;
-      line-height: 1.65;
-      color: rgba(255,255,255,0.84);
-      font-size: 0.95rem;
+      min-height: 48px;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.86);
     }
 
     .clear {
@@ -222,121 +125,176 @@
     }
 
     .help {
-      max-width: 760px;
-      margin: 14px auto 0;
-      padding: 14px;
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10;
+      max-width: 360px;
+      padding: 14px 16px;
       border-radius: 18px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.13);
-      color: rgba(255,255,255,0.78);
-      line-height: 1.7;
-      font-size: 0.88rem;
-      text-align: left;
+      background: rgba(0, 0, 0, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(12px);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.84rem;
+      line-height: 1.65;
     }
 
-    @media (max-width: 900px) {
-      .cube {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 560px) {
-      body {
-        padding: 14px;
+    @media (max-width: 720px) {
+      .ui {
+        top: 10px;
+        left: 10px;
+        width: calc(100vw - 20px);
       }
 
-      .status {
-        grid-template-columns: repeat(2, 1fr);
+      .help {
+        display: none;
       }
 
-      .cube {
-        grid-template-columns: 1fr;
+      h1 {
+        font-size: 1.35rem;
       }
 
-      .layer {
-        padding: 9px;
-      }
-
-      .tile {
-        font-size: 1.15rem;
+      .description {
+        font-size: 0.78rem;
       }
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <h1>63 PUZZLE</h1>
+  <canvas id="canvas"></canvas>
 
-    <p class="subtitle">
-      4×4×4の三次元スライドパズル。<br>
-      空きマスの上下左右、さらに上下階の同じ位置にあるタイルを動かせます。
+  <section class="ui">
+    <h1>3D 63 PUZZLE</h1>
+    <p class="description">
+      4×4×4の立体スライドパズル。空白マスに3次元的に隣接するタイルだけ動かせます。
     </p>
 
-    <section class="status">
-      <div class="status-card">
+    <div class="stats">
+      <div class="stat">
         <div class="label">MOVES</div>
         <div class="value" id="moves">0</div>
       </div>
-      <div class="status-card">
+      <div class="stat">
         <div class="label">TIME</div>
         <div class="value" id="time">0.0s</div>
       </div>
-      <div class="status-card">
-        <div class="label">EMPTY</div>
-        <div class="value" id="emptyPos">--</div>
-      </div>
-      <div class="status-card">
+      <div class="stat">
         <div class="label">BEST</div>
         <div class="value" id="best">--</div>
       </div>
-    </section>
-
-    <div class="controls">
-      <button class="action" id="shuffleBtn">シャッフル</button>
-      <button class="action secondary" id="resetBtn">リセット</button>
-      <button class="action secondary" id="hintBtn">動かせるタイルを表示</button>
     </div>
 
-    <section class="cube" id="cube"></section>
+    <div class="buttons">
+      <button id="shuffleBtn">シャッフル</button>
+      <button id="resetBtn" class="secondary">リセット</button>
+      <button id="hintBtn" class="secondary">ヒント</button>
+    </div>
 
     <p class="message" id="message">
-      「シャッフル」を押してスタート！
+      ドラッグで回転、ホイールでズーム。シャッフルして開始！
     </p>
+  </section>
 
-    <div class="help">
-      <strong>遊び方：</strong>
-      数字を 1〜63 の順に並べ、最後のマスを空白にするとクリアです。
-      4つのボードは上から順に 1F, 2F, 3F, 4F を表しています。
-      空きマスと同じ階の上下左右だけでなく、同じ座標の上階・下階のタイルもスライドできます。
-    </div>
-  </main>
+  <section class="help">
+    <strong>操作</strong><br>
+    ・ドラッグ：キューブ回転<br>
+    ・ホイール：ズーム<br>
+    ・タイルをクリック：移動<br>
+    ・黄色いワイヤー：空白マス<br>
+    ・ヒントON：動かせるタイルが光る
+  </section>
 
-  <script>
-    const cubeEl = document.getElementById("cube");
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const canvas = document.getElementById("canvas");
     const movesEl = document.getElementById("moves");
     const timeEl = document.getElementById("time");
-    const emptyPosEl = document.getElementById("emptyPos");
     const bestEl = document.getElementById("best");
     const messageEl = document.getElementById("message");
-
     const shuffleBtn = document.getElementById("shuffleBtn");
     const resetBtn = document.getElementById("resetBtn");
     const hintBtn = document.getElementById("hintBtn");
 
     const N = 4;
     const TOTAL = N * N * N;
-    const goal = Array.from({ length: TOTAL }, (_, i) => i === TOTAL - 1 ? 0 : i + 1);
+    const goal = Array.from({ length: TOTAL }, (_, i) => {
+      return i === TOTAL - 1 ? 0 : i + 1;
+    });
 
     let tiles = [...goal];
     let moves = 0;
     let started = false;
     let cleared = false;
-    let timerId = null;
     let startTime = 0;
+    let timerId = null;
     let showHints = false;
 
+    const tileMeshes = [];
+    let emptyWire = null;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x050510, 10, 28);
+
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      100
+    );
+    camera.position.set(7.8, 6.4, 9.2);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 6;
+    controls.maxDistance = 22;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    dirLight.position.set(5, 8, 7);
+    scene.add(dirLight);
+
+    const pointLight1 = new THREE.PointLight(0x00eaff, 3.0, 25);
+    pointLight1.position.set(-5, 4, 5);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xff4ecd, 2.7, 25);
+    pointLight2.position.set(5, -4, -5);
+    scene.add(pointLight2);
+
+    const cubeGroup = new THREE.Group();
+    scene.add(cubeGroup);
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    const tileGeometry = new THREE.BoxGeometry(0.88, 0.88, 0.88);
+    const spacing = 1.18;
+
     updateBestDisplay();
-    render();
+    buildSceneFromTiles();
 
     function indexToXYZ(index) {
       const z = Math.floor(index / (N * N));
@@ -348,6 +306,16 @@
 
     function xyzToIndex(x, y, z) {
       return z * N * N + y * N + x;
+    }
+
+    function positionFromIndex(index) {
+      const { x, y, z } = indexToXYZ(index);
+
+      return new THREE.Vector3(
+        (x - 1.5) * spacing,
+        (1.5 - y) * spacing,
+        (z - 1.5) * spacing
+      );
     }
 
     function getEmptyIndex() {
@@ -368,78 +336,160 @@
 
     function getMovableIndexes(emptyIndex) {
       const { x, y, z } = indexToXYZ(emptyIndex);
-      const candidates = [];
+      const indexes = [];
 
-      if (x > 0) candidates.push(xyzToIndex(x - 1, y, z));
-      if (x < N - 1) candidates.push(xyzToIndex(x + 1, y, z));
-      if (y > 0) candidates.push(xyzToIndex(x, y - 1, z));
-      if (y < N - 1) candidates.push(xyzToIndex(x, y + 1, z));
-      if (z > 0) candidates.push(xyzToIndex(x, y, z - 1));
-      if (z < N - 1) candidates.push(xyzToIndex(x, y, z + 1));
+      if (x > 0) indexes.push(xyzToIndex(x - 1, y, z));
+      if (x < N - 1) indexes.push(xyzToIndex(x + 1, y, z));
+      if (y > 0) indexes.push(xyzToIndex(x, y - 1, z));
+      if (y < N - 1) indexes.push(xyzToIndex(x, y + 1, z));
+      if (z > 0) indexes.push(xyzToIndex(x, y, z - 1));
+      if (z < N - 1) indexes.push(xyzToIndex(x, y, z + 1));
 
-      return candidates;
+      return indexes;
     }
 
-    function render() {
-      cubeEl.innerHTML = "";
+    function createTileTexture(number, isCorrect, isMovable) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 256;
+      canvas.height = 256;
 
-      const emptyIndex = getEmptyIndex();
-      const empty = indexToXYZ(emptyIndex);
-      const movable = getMovableIndexes(emptyIndex);
+      const ctx = canvas.getContext("2d");
 
-      emptyPosEl.textContent = `${empty.z + 1}F`;
+      const hue = (number * 31) % 360;
 
-      for (let z = 0; z < N; z++) {
-        const layer = document.createElement("section");
-        layer.className = "layer";
+      const grad = ctx.createLinearGradient(0, 0, 256, 256);
 
-        if (z === empty.z) {
-          layer.classList.add("active");
-        }
+      if (isCorrect) {
+        grad.addColorStop(0, "#ffe66d");
+        grad.addColorStop(1, "#ff4ecd");
+      } else if (isMovable) {
+        grad.addColorStop(0, "#66ffcc");
+        grad.addColorStop(1, "#00eaff");
+      } else {
+        grad.addColorStop(0, `hsl(${hue}, 90%, 58%)`);
+        grad.addColorStop(1, `hsl(${(hue + 70) % 360}, 90%, 42%)`);
+      }
 
-        const title = document.createElement("div");
-        title.className = "layer-title";
-        title.innerHTML = `
-          <span>${z + 1}F</span>
-          <span class="empty-marker">EMPTY</span>
-        `;
-        layer.appendChild(title);
+      ctx.fillStyle = grad;
+      roundRect(ctx, 16, 16, 224, 224, 34);
+      ctx.fill();
 
-        const board = document.createElement("div");
-        board.className = "board";
+      ctx.strokeStyle = "rgba(255,255,255,0.65)";
+      ctx.lineWidth = isMovable ? 12 : 6;
+      roundRect(ctx, 16, 16, 224, 224, 34);
+      ctx.stroke();
 
-        for (let y = 0; y < N; y++) {
-          for (let x = 0; x < N; x++) {
-            const index = xyzToIndex(x, y, z);
-            const num = tiles[index];
+      ctx.shadowColor = "rgba(0,0,0,0.65)";
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = "white";
+      ctx.font = "900 92px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(number), 128, 134);
 
-            if (num === 0) {
-              const emptyCell = document.createElement("div");
-              emptyCell.className = "empty";
-              emptyCell.textContent = "空";
-              board.appendChild(emptyCell);
-              continue;
-            }
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.font = "700 24px system-ui, sans-serif";
+      ctx.fillText("63 PUZZLE", 128, 210);
 
-            const button = document.createElement("button");
-            button.className = "tile";
-            button.textContent = num;
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
+    }
 
-            if (num === goal[index]) {
-              button.classList.add("correct");
-            }
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
 
-            if (showHints && movable.includes(index)) {
-              button.classList.add("movable");
-            }
+    function clearCubeGroup() {
+      while (cubeGroup.children.length > 0) {
+        const obj = cubeGroup.children.pop();
 
-            button.addEventListener("click", () => moveTile(index));
-            board.appendChild(button);
+        if (obj.geometry) obj.geometry.dispose();
+
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach((mat) => {
+              if (mat.map) mat.map.dispose();
+              mat.dispose();
+            });
+          } else {
+            if (obj.material.map) obj.material.map.dispose();
+            obj.material.dispose();
           }
         }
+      }
 
-        layer.appendChild(board);
-        cubeEl.appendChild(layer);
+      tileMeshes.length = 0;
+      emptyWire = null;
+    }
+
+    function buildSceneFromTiles() {
+      clearCubeGroup();
+
+      const emptyIndex = getEmptyIndex();
+      const movableIndexes = getMovableIndexes(emptyIndex);
+
+      for (let i = 0; i < TOTAL; i++) {
+        const number = tiles[i];
+        const pos = positionFromIndex(i);
+
+        if (number === 0) {
+          const emptyGeometry = new THREE.BoxGeometry(0.92, 0.92, 0.92);
+          const emptyEdges = new THREE.EdgesGeometry(emptyGeometry);
+          const emptyMaterial = new THREE.LineBasicMaterial({
+            color: 0xffe66d
+          });
+
+          emptyWire = new THREE.LineSegments(emptyEdges, emptyMaterial);
+          emptyWire.position.copy(pos);
+          cubeGroup.add(emptyWire);
+          continue;
+        }
+
+        const isCorrect = number === goal[i];
+        const isMovable = showHints && movableIndexes.includes(i);
+
+        const texture = createTileTexture(number, isCorrect, isMovable);
+
+        const material = new THREE.MeshStandardMaterial({
+          map: texture,
+          roughness: 0.38,
+          metalness: 0.28,
+          emissive: isMovable ? new THREE.Color(0x003333) : new THREE.Color(0x000000),
+          transparent: true,
+          opacity: 0.96
+        });
+
+        const mesh = new THREE.Mesh(tileGeometry, material);
+        mesh.position.copy(pos);
+        mesh.userData.index = i;
+        mesh.userData.number = number;
+
+        const edgeGeometry = new THREE.EdgesGeometry(tileGeometry);
+        const edgeMaterial = new THREE.LineBasicMaterial({
+          color: isMovable ? 0xffffff : 0x111111,
+          transparent: true,
+          opacity: isMovable ? 0.95 : 0.4
+        });
+        const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+        edges.position.copy(pos);
+        edges.userData.isEdge = true;
+
+        cubeGroup.add(mesh);
+        cubeGroup.add(edges);
+
+        tileMeshes.push(mesh);
       }
 
       movesEl.textContent = moves;
@@ -451,7 +501,7 @@
       const emptyIndex = getEmptyIndex();
 
       if (!isNeighbor3D(index, emptyIndex)) {
-        messageEl.textContent = "そのタイルは動かせない！空きマスに3次元的に隣接しているタイルだけ動かせます。";
+        messageEl.textContent = "そのタイルは動かせない！空白マスに隣接したタイルをクリックしてね。";
         return;
       }
 
@@ -463,13 +513,12 @@
       [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
       moves++;
 
-      render();
+      buildSceneFromTiles();
 
       if (isSolved()) {
         gameClear();
       } else {
-        const empty = indexToXYZ(getEmptyIndex());
-        messageEl.textContent = `移動成功。空きマスは ${empty.z + 1}F にあります。`;
+        messageEl.textContent = "移動成功。キューブを回転させながら空白マスを追っていこう。";
       }
     }
 
@@ -483,7 +532,7 @@
 
       let previousEmptyIndex = -1;
 
-      for (let i = 0; i < 1200; i++) {
+      for (let i = 0; i < 1000; i++) {
         const emptyIndex = getEmptyIndex();
 
         let candidates = getMovableIndexes(emptyIndex)
@@ -500,8 +549,8 @@
       }
 
       moves = 0;
-      messageEl.textContent = "スタート！空きマスに隣接するタイルを動かそう。";
-      render();
+      messageEl.textContent = "スタート！黄色いワイヤーが空白マス。隣接タイルをクリックして動かそう。";
+      buildSceneFromTiles();
     }
 
     function reset() {
@@ -509,7 +558,7 @@
       tiles = [...goal];
       moves = 0;
       messageEl.textContent = "完成形に戻しました。シャッフルで再スタート！";
-      render();
+      buildSceneFromTiles();
     }
 
     function resetState() {
@@ -520,6 +569,7 @@
       moves = 0;
       startTime = 0;
       timeEl.textContent = "0.0s";
+      hintBtn.textContent = "ヒント";
     }
 
     function startTimer() {
@@ -540,20 +590,22 @@
 
     function gameClear() {
       cleared = true;
-      stopTimer();
 
-      const seconds = Number(timeEl.textContent.replace("s", ""));
+      const seconds = (performance.now() - startTime) / 1000;
+
+      stopTimer();
+      timeEl.textContent = seconds.toFixed(1) + "s";
 
       messageEl.innerHTML = `
         <span class="clear">CLEAR!</span><br>
-        ${moves}手 / ${seconds.toFixed(1)}秒で63パズルを制覇！
+        クリアタイム：${seconds.toFixed(1)}秒 / 手数：${moves}手
       `;
 
       saveBest(moves, seconds);
     }
 
     function saveBest(currentMoves, currentSeconds) {
-      const old = JSON.parse(localStorage.getItem("puzzle63Best") || "null");
+      const old = JSON.parse(localStorage.getItem("puzzle63_3d_best") || "null");
 
       const shouldUpdate =
         !old ||
@@ -561,7 +613,7 @@
         (currentMoves === old.moves && currentSeconds < old.seconds);
 
       if (shouldUpdate) {
-        localStorage.setItem("puzzle63Best", JSON.stringify({
+        localStorage.setItem("puzzle63_3d_best", JSON.stringify({
           moves: currentMoves,
           seconds: currentSeconds
         }));
@@ -572,7 +624,7 @@
     }
 
     function updateBestDisplay() {
-      const best = JSON.parse(localStorage.getItem("puzzle63Best") || "null");
+      const best = JSON.parse(localStorage.getItem("puzzle63_3d_best") || "null");
 
       if (!best) {
         bestEl.textContent = "--";
@@ -581,50 +633,58 @@
       }
     }
 
-    shuffleBtn.addEventListener("click", shuffle);
+    function onPointerDown(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
 
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(pointer, camera);
+
+      const intersects = raycaster.intersectObjects(tileMeshes, false);
+
+      if (intersects.length > 0) {
+        const mesh = intersects[0].object;
+        moveTile(mesh.userData.index);
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      controls.update();
+
+      if (emptyWire) {
+        emptyWire.rotation.x += 0.01;
+        emptyWire.rotation.y += 0.013;
+      }
+
+      cubeGroup.rotation.y += 0.0015;
+
+      renderer.render(scene, camera);
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+
+    shuffleBtn.addEventListener("click", shuffle);
     resetBtn.addEventListener("click", reset);
 
     hintBtn.addEventListener("click", () => {
       showHints = !showHints;
-      hintBtn.textContent = showHints ? "ヒントを隠す" : "動かせるタイルを表示";
-      render();
+      hintBtn.textContent = showHints ? "ヒントOFF" : "ヒント";
+      buildSceneFromTiles();
     });
 
-    document.addEventListener("keydown", (e) => {
-      const emptyIndex = getEmptyIndex();
-      const { x, y, z } = indexToXYZ(emptyIndex);
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("resize", onResize);
 
-      let target = null;
-
-      if (e.key === "ArrowLeft" && x < N - 1) {
-        target = xyzToIndex(x + 1, y, z);
-      }
-
-      if (e.key === "ArrowRight" && x > 0) {
-        target = xyzToIndex(x - 1, y, z);
-      }
-
-      if (e.key === "ArrowUp" && y < N - 1) {
-        target = xyzToIndex(x, y + 1, z);
-      }
-
-      if (e.key === "ArrowDown" && y > 0) {
-        target = xyzToIndex(x, y - 1, z);
-      }
-
-      if ((e.key === "q" || e.key === "Q") && z < N - 1) {
-        target = xyzToIndex(x, y, z + 1);
-      }
-
-      if ((e.key === "e" || e.key === "E") && z > 0) {
-        target = xyzToIndex(x, y, z - 1);
-      }
-
-      if (target !== null) {
-        moveTile(target);
-      }
-    });
+    animate();
   </script>
 </body>
 </html>
