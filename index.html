@@ -142,9 +142,12 @@
 
     @media (max-width: 720px) {
       .ui {
-        top: 10px;
+        top: auto;
+        bottom: 10px;
         left: 10px;
         width: calc(100vw - 20px);
+        padding: 12px;
+        border-radius: 18px;
       }
 
       .help {
@@ -152,11 +155,46 @@
       }
 
       h1 {
-        font-size: 1.35rem;
+        font-size: 1.25rem;
+        margin-bottom: 4px;
       }
 
       .description {
+        display: none;
+      }
+
+      .stats {
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .stat {
+        padding: 7px;
+      }
+
+      .label {
+        font-size: 0.62rem;
+      }
+
+      .value {
+        font-size: 0.9rem;
+      }
+
+      .buttons {
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      button {
+        min-width: 80px;
+        padding: 9px 10px;
         font-size: 0.78rem;
+      }
+
+      .message {
+        min-height: 34px;
+        font-size: 0.75rem;
+        line-height: 1.45;
       }
     }
   </style>
@@ -166,6 +204,7 @@
 
   <section class="ui">
     <h1>3D 63 PUZZLE</h1>
+
     <p class="description">
       4×4×4の立体スライドパズル。空白マスに3次元的に隣接するタイルだけ動かせます。
     </p>
@@ -253,13 +292,13 @@
       0.1,
       100
     );
-    camera.position.set(7.8, 6.4, 9.2);
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true
     });
+
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -267,7 +306,8 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.minDistance = 6;
-    controls.maxDistance = 22;
+    controls.maxDistance = 24;
+    controls.enablePan = false;
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
     scene.add(ambientLight);
@@ -293,8 +333,28 @@
     const tileGeometry = new THREE.BoxGeometry(0.88, 0.88, 0.88);
     const spacing = 1.18;
 
+    applyResponsiveCamera();
     updateBestDisplay();
     buildSceneFromTiles();
+    animate();
+
+    function isMobile() {
+      return window.innerWidth <= 720;
+    }
+
+    function applyResponsiveCamera() {
+      if (isMobile()) {
+        camera.position.set(6.5, 7.2, 11.5);
+        cubeGroup.position.y = 1.45;
+        controls.target.set(0, 1.1, 0);
+      } else {
+        camera.position.set(7.8, 6.4, 9.2);
+        cubeGroup.position.y = 0;
+        controls.target.set(0, 0, 0);
+      }
+
+      controls.update();
+    }
 
     function indexToXYZ(index) {
       const z = Math.floor(index / (N * N));
@@ -349,11 +409,11 @@
     }
 
     function createTileTexture(number, isCorrect, isMovable) {
-      const canvas = document.createElement("canvas");
-      canvas.width = 256;
-      canvas.height = 256;
+      const textureCanvas = document.createElement("canvas");
+      textureCanvas.width = 256;
+      textureCanvas.height = 256;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = textureCanvas.getContext("2d");
 
       const hue = (number * 31) % 360;
 
@@ -392,8 +452,9 @@
       ctx.font = "700 24px system-ui, sans-serif";
       ctx.fillText("63 PUZZLE", 128, 210);
 
-      const texture = new THREE.CanvasTexture(canvas);
+      const texture = new THREE.CanvasTexture(textureCanvas);
       texture.colorSpace = THREE.SRGBColorSpace;
+
       return texture;
     }
 
@@ -415,7 +476,9 @@
       while (cubeGroup.children.length > 0) {
         const obj = cubeGroup.children.pop();
 
-        if (obj.geometry) obj.geometry.dispose();
+        if (obj.geometry) {
+          obj.geometry.dispose();
+        }
 
         if (obj.material) {
           if (Array.isArray(obj.material)) {
@@ -466,7 +529,9 @@
           map: texture,
           roughness: 0.38,
           metalness: 0.28,
-          emissive: isMovable ? new THREE.Color(0x003333) : new THREE.Color(0x000000),
+          emissive: isMovable
+            ? new THREE.Color(0x003333)
+            : new THREE.Color(0x000000),
           transparent: true,
           opacity: 0.96
         });
@@ -482,6 +547,7 @@
           transparent: true,
           opacity: isMovable ? 0.95 : 0.4
         });
+
         const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
         edges.position.copy(pos);
         edges.userData.isEdge = true;
@@ -634,6 +700,10 @@
     }
 
     function onPointerDown(event) {
+      if (event.target.closest(".ui")) {
+        return;
+      }
+
       const rect = renderer.domElement.getBoundingClientRect();
 
       pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -668,6 +738,8 @@
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
+      applyResponsiveCamera();
+
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     }
@@ -683,8 +755,6 @@
 
     window.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("resize", onResize);
-
-    animate();
   </script>
 </body>
 </html>
